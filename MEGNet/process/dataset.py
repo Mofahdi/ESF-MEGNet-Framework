@@ -13,7 +13,7 @@ from dgl.data import DGLDataset
 from dgl.dataloading import GraphDataLoader
 from dgl.data.utils import split_dataset
 
-from graph_converter import Icoxx2Graph
+from .graph_converter import Icoxx2Graph
 
 warnings.simplefilter("ignore")
 
@@ -45,7 +45,7 @@ def compute_pair_vector_and_distance(g: dgl.DGLGraph):
     return bond_vec, bond_dist
 
 
-class ModMGLDataset(DGLDataset):
+class MDGLDataset(DGLDataset):
     """Create a dataset including dgl graphs."""
     def __init__(
         self,

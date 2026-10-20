@@ -11,21 +11,15 @@ import torch
 from dgl.nn import Set2Set
 from torch import nn
 
-#from matgl.config import DEFAULT_ELEMENTS
-#from matgl.graph.compute import compute_pair_vector_and_distance
-from mod_dataset import compute_pair_vector_and_distance
-#from matgl.layers import MLP, ActivationFunction, BondExpansion, EdgeSet2Set, EmbeddingBlock, MEGNetBlock 
+from process.dataset import compute_pair_vector_and_distance
+from process.graph_converter import Icoxx2Graph
 
-from _bond import BondExpansion
-from _activations import ActivationFunction
-from layers import MLP, EdgeSet2Set, MEGNetBlock, EmbeddingBlock
-#from matgl.utils.io import IOMixIn
-from model_utils import IOMixIn
+from ._bond import BondExpansion
+from ._activations import ActivationFunction
+from .layers import MLP, EdgeSet2Set, MEGNetBlock, EmbeddingBlock
+from .model_utils import IOMixIn
 
-#if TYPE_CHECKING:
 import dgl
-    #from matgl.graph.converters import GraphConverter
-from graph_converter import Icoxx2Graph
 
 logger = logging.getLogger(__file__)
 

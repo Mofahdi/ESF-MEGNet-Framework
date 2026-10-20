@@ -2,9 +2,8 @@ from __future__ import annotations
 import dgl
 import numpy as np
 import torch
-#import matgl
+
 import warnings
-from tqdm import trange
 
 # from ase import Atoms, Atoms
 # from ase.neighborlist import neighbor_list
@@ -13,11 +12,8 @@ from ase.io import read
 from pymatgen.core import Structure
 from pymatgen.core.periodic_table import Element
 
-from nbrs_map import icoxx_struc_fxn
+from .nbrs_map import icoxx_struc_fxn
 
-# checklist:
-# 1- check missing interactions are zero and skip if they are not
-# 2- 
 
 warnings.simplefilter("ignore")
 

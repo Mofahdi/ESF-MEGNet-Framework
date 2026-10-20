@@ -8,9 +8,9 @@ from glob import glob
 import dgl 
 from train.megnet import MEGNet
 from process.graph_converter import Icoxx2Graph
-from process.dataset import ModMGLDataset, MGLDataLoader, collate_fn_graph
+from process.dataset import MDGLDataset, MGLDataLoader, collate_fn_graph
 from dgl.data.utils import split_dataset
-from _training_dgl import ModelLightningModule
+from train._training_dgl import ModelLightningModule
 #from train.model_utils import load_model
 
 import torch
@@ -39,7 +39,7 @@ col_name = 'log_msd_mean_300'
 df=pd.read_csv(csv_filename)
 
 # convert the raw dataset into MEGNetDataset
-ph_dataset = ModMGLDataset(
+ph_dataset = MDGLDataset(
         name='MGLDataset_ICOXX',
         structures_path=list(df.struc_dir.values),
         labels={"target": list(df[col_name].values.tolist())},
