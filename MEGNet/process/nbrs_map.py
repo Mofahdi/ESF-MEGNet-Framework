@@ -26,7 +26,7 @@ def get_icoxx_pairs_S_l(ICOXX_file_path):
     list_atom2=list(icohp_list._icohpcollection._list_atom2)
     list_lens=list(icohp_list._icohpcollection._list_length)
     list_trans=list(list(trans) for trans in icohp_list._icohpcollection._list_translation)
-    list_icohp=[float(list(cohp_dict.values())[0]) for cohp_dict in icohp_list._icohpcollection._list_icohp] 
+    list_icohp=[float(sum(cohp_dict.values())) for cohp_dict in icohp_list._icohpcollection._list_icohp] 
 
     #list_atom1_src_symbol_lobster=[atom_src.strip("0123456789") for atom_src in list_atom1]; 
     #list_atom1_src_index_lobster=[int(chars_src)-1 for atom_src in list_atom1 for chars_src in atom_src if chars_src.isdigit()] 
