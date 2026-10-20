@@ -39,7 +39,7 @@ col_name = 'log_msd_mean_300'
 df=pd.read_csv(csv_filename)
 
 # convert the raw dataset into MEGNetDataset
-ph_dataset = MDGLDataset(
+dataset = MDGLDataset(
         name='MGLDataset_ICOXX',
         structures_path=list(df.struc_dir.values),
         labels={"target": list(df[col_name].values.tolist())},
@@ -59,13 +59,12 @@ if split_idx_avail:
     test_idx = np.load(test_idx_filename).tolist()
 
     from dgl.data.utils import Subset
-    train_data=Subset(ph_dataset, train_idx)
-    val_data=Subset(ph_dataset, val_idx)
-    test_data=Subset(ph_dataset, test_idx)
-    #train_data, val_data, test_data=ph_dataset[train_idx], ph_dataset[val_idx], ph_dataset[test_idx]
+    train_data=Subset(dataset, train_idx)
+    val_data=Subset(dataset, val_idx)
+    test_data=Subset(dataset, test_idx)
 else:
     train_data, val_data, test_data = split_dataset(
-    ph_dataset,
+    dataset,
     frac_list=[0.8, 0.1, 0.1],
     shuffle=True,
     random_state=42,
