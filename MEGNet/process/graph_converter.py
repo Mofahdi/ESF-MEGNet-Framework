@@ -6,20 +6,14 @@ import torch
 import warnings
 from tqdm import trange
 
-from ase import Atoms, Atoms
-from ase.neighborlist import neighbor_list
+# from ase import Atoms, Atoms
+# from ase.neighborlist import neighbor_list
 from ase.io import read
-from jarvis.core.specie import Specie
-from jarvis.core.specie import get_node_attributes
 
 from pymatgen.core import Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.io.lobster import Grosspop
 
-#from lobsterpy.featurize.core import FeaturizeIcoxxlist
-#from matgl.graph.converters import GraphConverter
-
-from test_nbrs import icoxx_struc_fxn
+from nbrs_map import icoxx_struc_fxn
 
 # checklist:
 # 1- check missing interactions are zero and skip if they are not
@@ -71,7 +65,6 @@ class Icoxx2Graph:
     """Construct a DGL graph from Pymatgen Structure and Icohplist objects."""
     def __init__(
         self,
-        #element_types: tuple[str, ...],
         bond_length_cutoff: float | None = None,
         node_feats_type: str='Z', 
     ):
@@ -89,7 +82,6 @@ class Icoxx2Graph:
     def get_graph(self, 
                   path_to_structure: str,
                   path_to_icoxxlist: str, 
-                  path_to_grosspop: str | None = None,
                   ) -> tuple[dgl.DGLGraph, torch.Tensor, list]:
         """Get a DGL graph from an input Structure and ICOXXLIST files.
         
@@ -102,7 +94,6 @@ class Icoxx2Graph:
         """
 
         structure=read(path_to_structure)
-        #pmg_struc=Structure.from_file(path_to_structure)
 
         mapped_icoxx_data_reverse, missing_interactions_reverse=icoxx_struc_fxn(CONTCAR_path=path_to_structure, 
                                                                             r_cutoff = self.bond_length_cutoff, 
@@ -126,18 +117,6 @@ class Icoxx2Graph:
             icoxxs.append(icoxx)
             images.append(img)
 
-        if path_to_grosspop:
-            grosspop= Grosspop(filename=path_to_grosspop) 
-            pair_n_electrons = np.array(
-                    [
-                        grosspop.list_dict_grosspop[at1]["Loewdin GP"]["total"]
-                        + grosspop.list_dict_grosspop[at2]["Loewdin GP"]["total"]
-                        for at1, at2 in zip(src_ids, dst_ids)
-                    ]
-                    )
-            norm_bond_strength=np.asarray(icoxxs)/pair_n_electrons
-            #print(type(icoxxs), type(pair_n_electrons), norm_bond_strength.dtype)
-            #print(icoxxs/pair_n_electrons); exit()
         lattice_matrix=np.expand_dims(structure.cell.array, axis=0)
         g, lat, state_attr = self.get_graph_from_processed_structure(
             structure,
@@ -145,12 +124,9 @@ class Icoxx2Graph:
             dst_ids,
             images,
             lattice_matrix,
-            #element_types,
             structure.get_scaled_positions(),
             icoxxs,
         )
-        if path_to_grosspop:
-            g.edata["norm_bond_strengths"]=torch.as_tensor(norm_bond_strength, dtype=default_dtype)
 
         return g, lat, state_attr
 
@@ -162,7 +138,6 @@ class Icoxx2Graph:
         dst_id,
         images,
         lattice_matrix,
-        #element_types,
         frac_coords,
         icoxxs,
     ) -> tuple[dgl.DGLGraph, torch.Tensor, list]:
@@ -193,23 +168,16 @@ class Icoxx2Graph:
             node_features = torch.nn.functional.one_hot(
                             torch.from_numpy(structure.get_atomic_numbers().copy()-1).long(), num_classes=118,
                             ).to(dtype=default_dtype)
-        elif self.node_feats_type.lower()=='orb':
+        elif self.node_feats_type.lower()=='rand_embd':
             #atom_emb=AtomEmbedding(emb_size=92, num_elements=118, sparse=False)
             atom_emb=AtomEmbedding(emb_size=118, num_elements=118, sparse=False)
             node_features = atom_emb(torch.from_numpy(structure.get_atomic_numbers().copy()-1).long()).detach()
-
-        elif self.node_feats_type.lower()=='cgcnn':
-            sps_features = []
-            for ii, s in enumerate(structure.get_chemical_symbols().copy()):
-                feat = list(get_node_attributes(s, atom_features='cgcnn'))
-                sps_features.append(feat)
-            node_features = torch.tensor(sps_features, dtype=default_dtype)
         
         else:
-            raise ValueError("""use one of the following feature types: "Z", "orb", or "cgcnn" ignoring the case 
+            raise ValueError("""use one of the following feature types: "Z" or "rand_embd" ignoring the case 
                     "Z": one hot encoding atomic number
-                    "orb": node features similar node features to orb orb
-                    "cgcnn": features from CGCNN""")
+                    "rand_embd": node features similar node features to orb orb
+                    """)
 
         g.ndata["node_feats"] = node_features
         positions = torch.as_tensor(structure.positions.copy(), dtype=default_dtype);

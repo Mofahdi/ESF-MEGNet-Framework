@@ -8,14 +8,10 @@ import torch
 import warnings
 
 from tqdm import trange
-from pymatgen.core import Structure
 from dgl.data.utils import load_graphs, save_graphs
 from dgl.data import DGLDataset
 from dgl.dataloading import GraphDataLoader
 from dgl.data.utils import split_dataset
-
-#import matgl
-#from matgl.graph.compute import compute_pair_vector_and_distance, create_line_graph
 
 from graph_converter import Icoxx2Graph
 
@@ -73,7 +69,6 @@ class ModMGLDataset(DGLDataset):
         save_cache: bool = True,
         raw_dir: str | None = None,
         save_dir: str | None = None,
-        df_indices: list | None = None,
     ):
         """
         Args:
@@ -144,11 +139,8 @@ class ModMGLDataset(DGLDataset):
         for idx in trange(num_graphs):
             path_to_structure = self.structures_path[idx]  # type: ignore
             path_to_icoxxlist = self.icoxxlists_path[idx]
-            #path_to_grosspop = self.grosspops_path[idx]
             graph, lattice, state_attr = self.converter.get_graph(path_to_structure=path_to_structure, 
                                                                   path_to_icoxxlist=path_to_icoxxlist, )
-                                                                  #path_to_grosspop=path_to_grosspop)  # type: ignore
-            #print(path_to_structure)
             graphs.append(graph)
             lattices.append(lattice)
             state_attrs.append(state_attr)
@@ -157,31 +149,22 @@ class ModMGLDataset(DGLDataset):
             bond_vec, bond_dist = compute_pair_vector_and_distance(graph)
             graph.edata["bond_vec"] = bond_vec
             graph.edata["bond_dist"] = bond_dist
-            #print(graph.edata['norm_bond_strengths'].shape)
-            #exit()
-            if self.include_line_graph:
-                line_graph = create_line_graph(graph, self.threebody_cutoff, directed=self.directed_line_graph)  # type: ignore
-                for name in ["bond_vec", "bond_dist", "pbc_offset"]:
-                    line_graph.ndata.pop(name)
-                line_graphs.append(line_graph)
-            #graph.ndata.pop("pos")
-            #graph.edata.pop("pbc_offshift")
+            # if self.include_line_graph:
+            #     line_graph = create_line_graph(graph, self.threebody_cutoff, directed=self.directed_line_graph)  # type: ignore
+            #     for name in ["bond_vec", "bond_dist", "pbc_offset"]:
+            #         line_graph.ndata.pop(name)
+            #     line_graphs.append(line_graph)
         if self.graph_labels is not None:
             state_attrs = torch.tensor(self.graph_labels).long()
         else:
             state_attrs = torch.tensor(np.array(state_attrs), dtype=default_dtype)
         
-        #if self.clear_processed:
-         #   del self.structures
-          #  self.structures = []
-
         self.graphs = graphs
         self.lattices = lattices
         self.state_attr = state_attrs
-        #print(self.ids); #exit()
-        if self.include_line_graph:
-            self.line_graphs = line_graphs
-            return self.ids, self.graphs, self.lattices, self.line_graphs, self.state_attr
+        # if self.include_line_graph:
+        #     self.line_graphs = line_graphs
+        #     return self.ids, self.graphs, self.lattices, self.line_graphs, self.state_attr
         return self.ids, self.graphs, self.lattices, self.state_attr
     
     def save(self):

@@ -32,7 +32,7 @@ logger = logging.getLogger(__file__)
 default_dtype = torch.float64
 torch.set_default_dtype(default_dtype)
 
-class ModMEGNet(nn.Module, IOMixIn):
+class MEGNet(nn.Module, IOMixIn):
     """DGL implementation of MEGNet."""
 
     __version__ = 1

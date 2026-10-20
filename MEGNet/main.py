@@ -6,12 +6,12 @@ import copy
 from glob import glob
 
 import dgl 
-from mod_megnet import ModMEGNet
-from graph_converter import Icoxx2Graph
-from mod_dataset import ModMGLDataset, MGLDataLoader, collate_fn_graph
+from train.megnet import MEGNet
+from process.graph_converter import Icoxx2Graph
+from process.dataset import ModMGLDataset, MGLDataLoader, collate_fn_graph
 from dgl.data.utils import split_dataset
 from _training_dgl import ModelLightningModule
-from model_utils import load_model
+#from train.model_utils import load_model
 
 import torch
 
@@ -21,37 +21,31 @@ import lightning as pl
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 
-#torch.set_float32_matmul_precision('high')
 
-# TODO:
-#1- check predictions
-#2- check loading models from og, save (other sources), and lite_module (m3gnet), 
-#3- output predictions, a- split from the beginning before creating graphs (1st split) to get the test set. Then, split after the graphs (0 test set ratio), 
-#                       b- as the df index of the material as a node embed
-#pl.seed_everything(12345)
-
-converter = Icoxx2Graph(bond_length_cutoff=5, node_feats_type='Z') # 'orb': 118, one hot 'Z': 118, 'cgcnn': 92
-df_ph=pd.read_csv('log_mean_300msd_lobsData.csv')
+converter = Icoxx2Graph(bond_length_cutoff=5, node_feats_type='Z') # 'rand_embd': 118, one hot 'Z': 118
 
 best_ckpt_dir=os.path.join (os.getcwd(), 'best_megCkpts')
 best_ckpt_name='best'
 max_epochs=500
 patience=300
 device='cuda'
-last_model_save_path = "./last_megnet/"
 split_idx_avail=True
+batch_size=64
+csv_filename = 'log_mean_300msd_lobsData.csv'
+col_name = 'log_msd_mean_300'
+
+
+
+df=pd.read_csv(csv_filename)
 
 # convert the raw dataset into MEGNetDataset
 ph_dataset = ModMGLDataset(
-        name='MGLDataset_ICOXX_OG',
-        structures_path=list(df_ph.struc_dir.values),
-        labels={"log_msd_mean_300": list(df_ph.log_msd_mean_300.values.tolist())},
-        #labels={"last_phdos_peak": list(df_ph.prop.values.tolist())},
-        #labels=list(df_ph.prop.tolist()),
+        name='MGLDataset_ICOXX',
+        structures_path=list(df.struc_dir.values),
+        labels={"target": list(df[col_name].values.tolist())},
         converter=converter,
-        icoxxlists_path=list(df_ph.ICOHP_dir.values),
-        #clear_processed=True,
-        ids=list(df_ph.id.values),
+        icoxxlists_path=list(df.ICOHP_dir.values),
+        ids=list(df.id.values),
         save_cache=False, # True 
         save_dir='.'
     )
@@ -70,24 +64,24 @@ if split_idx_avail:
     test_data=Subset(ph_dataset, test_idx)
     #train_data, val_data, test_data=ph_dataset[train_idx], ph_dataset[val_idx], ph_dataset[test_idx]
 else:
-    #train_data, val_data, test_data = split_dataset(
-    #ph_dataset,
-    #frac_list=[0.8, 0.1, 0.1],
-    #shuffle=True,
-    #random_state=42,
-    #)
-    pass
+    train_data, val_data, test_data = split_dataset(
+    ph_dataset,
+    frac_list=[0.8, 0.1, 0.1],
+    shuffle=True,
+    random_state=42,
+    )
+#    pass
 
 train_loader, val_loader, _ = MGLDataLoader(
         train_data=train_data,
         val_data=val_data,
         test_data=test_data,
         collate_fn=collate_fn_graph,
-        batch_size=64,
+        batch_size=batch_size,
         num_workers=0,
     )
 
-model = ModMEGNet(
+model = MEGNet(
         dim_node_embedding = 118, # change to 118 or 92
         dim_edge_embedding = 50,
         dim_state_embedding = 2,
@@ -148,10 +142,6 @@ plt.legend()
 plt.savefig('train_val.jpg')
 
 
-lit_module.model.save(last_model_save_path); #exit()
-# load trained model
-trained_model = load_model(path=last_model_save_path)
-
 
 
 from dgl.dataloading import GraphDataLoader
@@ -160,29 +150,14 @@ test_loader = GraphDataLoader(test_data, shuffle=False, collate_fn=collate_fn_gr
 ids=[]; labels_list=[]; preds_best_list=[]
 for gr in test_loader:
     id_, g, lattice, state_attr, label=gr
-    #pred_og_model=model(g, state_attr); #print(pred_og_model.shape, label.squeeze().shape)
     pred_best_model=get_best_module(lit_module, best_ckpt_path+'.ckpt', 'cpu').model(g, state_attr)
-    #print(label.squeeze(), pred_og_model,trained_model(g, state_attr), pred_best_model)
-    #print(label.shape, pred_best_model.shape)
-    #print(label.shape, pred_best_model.shape)
-    #print(pred_best_model.squeeze().detach().numpy().tolist())
-#    if type(pred_best_model.squeeze().detach().numpy().tolist())==float:
- #       preds_best_list.append(pred_best_model.squeeze().detach().numpy().tolist())
-  #      labels_list.append(label.squeeze().detach().numpy().tolist()); #preds_last_list.extend(pred_og_model.squeeze().tolist())
-   # else:
-    #    preds_best_list.extend(pred_best_model.squeeze().detach().numpy().tolist())
-     #   labels_list.extend(label.squeeze().detach().numpy().tolist()); #preds_last_list.extend(pred_og_model.squeeze().tolist())
     preds_best_list.append(pred_best_model.squeeze().detach().numpy().tolist())
     labels_list.append(label.squeeze().detach().numpy().tolist());
-    #print(id_)
     ids.extend(id_)
 
-#exit()
-#print(len(preds_best_list), len(labels_list))
 
 from torch.nn import L1Loss
 test_mae=L1Loss()
-#print(torch.tensor(labels_list, dtype=torch.float64).shape, torch.tensor(preds_best_list, dtype=torch.float64).shape)
 print('testing set MAE:', test_mae(torch.tensor(labels_list, dtype=torch.float64), torch.tensor(preds_best_list, dtype=torch.float64)))
 
 res_df=pd.DataFrame({'id': ids, 'label': labels_list, 'preds_best': preds_best_list})
@@ -193,30 +168,25 @@ from sklearn.metrics import r2_score
 coefficient_of_dermination = r2_score(labels_list, preds_best_list)
 print('R2=', coefficient_of_dermination)
 
-exit()
 
-'''
-model = ModMEGNet(
-        dim_node_embedding = 16,
-        dim_edge_embedding = 25,
-        dim_state_embedding = 2,
-        ntypes_state = None,
-        nblocks = 3,
-        hidden_layer_sizes_input = (64, 32),
-        hidden_layer_sizes_conv = (64, 64, 32),
-        hidden_layer_sizes_output = (32, 16),
-        nlayers_set2set = 1,
-        niters_set2set = 2,
-        activation_type = "softplus2",
-        is_classification = False,
-        include_state = True,
-        dropout = 0.0,
-        #element_types: tuple[str, ...] = DEFAULT_ELEMENTS,
-        bond_expansion = None,
-        cutoff = 5.0,
-        gauss_width = 0.5,
-        #**kwargs,
-    )
-'''
+
+
+import json
+results = {
+    "train_MAE_min": float(metrics["train_MAE"].min()),
+    "val_MAE_min": float(metrics["val_MAE"].min()),
+    "test_MAE": float(test_mae(
+        torch.tensor(labels_list, dtype=torch.float64),
+        torch.tensor(preds_best_list, dtype=torch.float64)
+    )),
+    "R2": float(r2_score(labels_list, preds_best_list))
+}
+
+with open("results.json", "w") as f:
+    json.dump(results, f, indent=4)
+
+
+
+
 
 
