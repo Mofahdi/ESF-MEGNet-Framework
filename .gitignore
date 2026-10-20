@@ -1,0 +1,12 @@
+runs
+./MEGNet/*.npy
+./MEGNet/submission_script.sh
+
+
+
+./ESF-MEGNet/*.npy
+./ESF-MEGNet/submission_script.sh
+
+
+
+
