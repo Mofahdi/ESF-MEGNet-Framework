@@ -4,23 +4,24 @@ MEGNet/train_idx_0.npy
 MEGNet/val_idx_0.npy
 MEGNet/submission_script.sh
 MEGNet/log_mean_300msd_lobsData.csv
-MEGNet/results.err
-MEGNet/results.out
+MEGNet/results.*
 MEGNet/process/__pycache__/
 MEGNet/train/__pycache__/
 MEGNet/logs
 MEGNet/best_megCkpts
+MEGNet/train_val.jpg
+
 
 ESF_MEGNet/test_idx_0.npy
 ESF_MEGNet/train_idx_0.npy
 ESF_MEGNet/val_idx_0.npy
 ESF_MEGNet/submission_script.sh
 ESF_MEGNet/log_mean_300msd_lobsData.csv
-ESF_MEGNet/results.err
-ESF_MEGNet/results.out
+ESF_MEGNet/results.*
 ESF_MEGNet/process/__pycache__/
 ESF_MEGNet/train/__pycache__/
 ESF_MEGNet/logs
 ESF_MEGNet/best_megCkpts
+ESF_MEGNet/train_val.jpg
 
 
