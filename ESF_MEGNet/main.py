@@ -1,3 +1,4 @@
+import argparse
 import os
 import pandas as pd
 import numpy as np
@@ -21,15 +22,54 @@ import lightning as pl
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 
-best_ckpt_dir=os.path.join (os.getcwd(), 'best_megCkpts')
-best_ckpt_name='best'
-max_epochs=500
-patience=300
-device='gpu'
-split_idx_avail=True
-batch_size=64
-csv_filename = 'log_mean_300msd_lobsData.csv'
-col_name = 'log_msd_mean_300'
+
+
+parser = argparse.ArgumentParser(description="Train and evaluate the MEGNet model.")
+parser.add_argument(
+    "--csv-filename",
+    default="log_mean_300msd_lobsData.csv",
+    help="Input CSV dataset filename.",
+)
+parser.add_argument(
+    "--col-name",
+    default="log_msd_mean_300",
+    help="CSV column containing the target values.",
+)
+parser.add_argument(
+    "--best-ckpt-dir",
+    default=os.path.join(os.getcwd(), "best_megCkpts"),
+    help="Directory for the best model checkpoint.",
+)
+parser.add_argument(
+    "--best-ckpt-name",
+    default="best",
+    help="Base filename for the best model checkpoint.",
+)
+parser.add_argument("--max-epochs", type=int, default=500, help="Maximum training epochs.")
+parser.add_argument("--patience", type=int, default=300, help="Early-stopping patience.")
+parser.add_argument(
+    "--device",
+    default="cuda",
+    help="Lightning accelerator to use, for example 'cuda', 'cpu', or 'auto'.",
+)
+parser.add_argument(
+    "--split-idx-avail",
+    action=argparse.BooleanOptionalAction,
+    default=True,
+    help="Use the saved train/validation/test index files.",
+)
+parser.add_argument("--batch-size", type=int, default=64, help="Training batch size.")
+args = parser.parse_args()
+
+csv_filename = args.csv_filename
+col_name = args.col_name
+best_ckpt_dir = args.best_ckpt_dir
+best_ckpt_name = args.best_ckpt_name
+max_epochs = args.max_epochs
+patience = args.patience
+device = args.device
+split_idx_avail = args.split_idx_avail
+batch_size = args.batch_size
 
 
 
