@@ -1,12 +1,17 @@
 runs
-./MEGNet/*.npy
-./MEGNet/submission_script.sh
+MEGNet/test_idx_0.npy
+MEGNet/train_idx_0.npy
+MEGNet/val_idx_0.npy
+MEGNet/submission_script.sh
+MEGNet/log_mean_300msd_lobsData.csv
 
 
 
-./ESF-MEGNet/*.npy
-./ESF-MEGNet/submission_script.sh
-
+ESF_MEGNet/test_idx_0.npy
+ESF_MEGNet/train_idx_0.npy
+ESF_MEGNet/val_idx_0.npy
+ESF_MEGNet/submission_script.sh
+ESF_MEGNet/log_mean_300msd_lobsData.csv
 
 
 
