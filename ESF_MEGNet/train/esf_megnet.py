@@ -11,27 +11,23 @@ import torch
 from dgl.nn import Set2Set
 from torch import nn
 
-#from matgl.config import DEFAULT_ELEMENTS
-#from matgl.graph.compute import compute_pair_vector_and_distance
-from mod_dataset import compute_pair_vector_and_distance
-#from matgl.layers import MLP, ActivationFunction, BondExpansion, EdgeSet2Set, EmbeddingBlock, MEGNetBlock 
+from process.dataset import compute_pair_vector_and_distance
 
-from _bond import BondExpansion
-from _activations import ActivationFunction
-from layers import MLP, EdgeSet2Set, MEGNetBlock, EmbeddingBlock
+from ._bond import BondExpansion
+from ._activations import ActivationFunction
+from .layers import MLP, EdgeSet2Set, MEGNetBlock, EmbeddingBlock
 #from matgl.utils.io import IOMixIn
-from model_utils import IOMixIn
+from .model_utils import IOMixIn
 
 
 if TYPE_CHECKING:
     import dgl
-    #from matgl.graph.converters import GraphConverter
-    from graph_converter import Icoxx2Graph
+    from process.graph_converter import Icoxx2Graph
 
 logger = logging.getLogger(__file__)
 
 
-class ModMEGNet_ICOXX(nn.Module, IOMixIn):
+class ESF_MEGNet(nn.Module, IOMixIn):
     """DGL implementation of MEGNet."""
 
     __version__ = 1
@@ -104,7 +100,7 @@ class ModMEGNet_ICOXX(nn.Module, IOMixIn):
         edge_icoxx_dims = [dim_edge_embedding*2, *hidden_layer_sizes_input]
         state_dims = [dim_state_embedding, *hidden_layer_sizes_input]
 
-        self.node_plus_feats = nn.Sequential(nn.Linear(2, self.node_plus_feats_dim), nn.LayerNorm(self.node_plus_feats_dim), 
+        self.node_plus_feats = nn.Sequential(nn.Linear(1, self.node_plus_feats_dim), nn.LayerNorm(self.node_plus_feats_dim), 
                                              nn.SiLU(), nn.Linear(32, 16), nn.SiLU()) #nn.Dropout(0.1))
         self.nodes_fusion=nn.Sequential(nn.Linear(node_dims[-1]+16, node_dims[-1]), 
                                         nn.SiLU(),) # nn.Dropout(0.1))
@@ -195,7 +191,8 @@ class ModMEGNet_ICOXX(nn.Module, IOMixIn):
         node_feat = self.node_encoder(node_feat)
         state_feat = self.state_encoder(state_feat)
 
-        node_plus_feat=self.node_plus_feats(torch.hstack([g.ndata['norm_chg'], g.ndata['norm_dos_centers']])) #g.ndata['norm_asym_ind_icohp'], g.ndata['norm_asym_ind_icobi']]))
+        #node_plus_feat=self.node_plus_feats(torch.hstack([g.ndata['norm_chg'], g.ndata['norm_dos_centers']])) #g.ndata['norm_asym_ind_icohp'], g.ndata['norm_asym_ind_icobi']]))
+        node_plus_feat=self.node_plus_feats(g.ndata['chg'])
         node_feat=torch.hstack([node_feat, node_plus_feat])
         node_feat=self.nodes_fusion(node_feat)
 
@@ -233,83 +230,3 @@ class ModMEGNet_ICOXX(nn.Module, IOMixIn):
 
         return torch.squeeze(output)
 
-if __name__=='__main__':
-    import numpy as np
-    from graph_converter import Icoxx2Graph
-    g, lattice, state_attr=Icoxx2Graph(bond_length_cutoff=5, node_feats_type='z').get_graph(path_to_structure='CONTCAR.gz',
-                path_to_icoxxlist='ICOHPLIST.lobster.gz', path_to_grosspop='GROSSPOP.lobster.gz',
-            )
-    g.edata["pbc_offshift"] = torch.matmul(g.edata["pbc_offset"], lattice[0])
-    state_attrs = torch.tensor(np.array(state_attr), dtype=torch.float64)
-    model = ModMEGNet_ICOXX(
-        dim_node_embedding = 118,
-        dim_edge_embedding = 50,
-        dim_state_embedding = 2,
-        ntypes_state = None,
-        nblocks = 3,
-        hidden_layer_sizes_input = (64, 32),
-        hidden_layer_sizes_conv = (64, 64, 32),
-        hidden_layer_sizes_output = (32, 16),
-        nlayers_set2set = 1,
-        niters_set2set = 2,
-        activation_type = "softplus2",
-        is_classification = False,
-        include_state = True,
-        dropout = 0.0,
-        #element_types: tuple[str, ...] = DEFAULT_ELEMENTS,
-        bond_expansion = None,
-        cutoff = 5.0,
-        gauss_width = 0.5,
-        #**kwargs,
-    )
-
-    print(model(g, state_attrs))
-
-    """    model = MEGNet(
-    dim_node_embedding=16,
-    dim_edge_embedding=25,
-    dim_state_embedding=2,
-    nblocks=3,
-    hidden_layer_sizes_input=(64, 32),
-    hidden_layer_sizes_conv=(64, 64, 32),
-    nlayers_set2set=1,
-    niters_set2set=2,
-    hidden_layer_sizes_output=(32, 16),
-    is_classification=False,
-    activation_type="softplus2",
-    bond_expansion=bond_expansion,
-    cutoff=4.5,
-    gauss_width=0.5,
-    )
-    """
-
-    """    def predict_structure(
-        self,
-        structure,
-        state_attr: torch.Tensor | None = None,
-        graph_converter: Icoxx2Graph | None = None,
-    ):
-        #""Convenience method to directly predict property from structure.
-
-        Args:
-            structure: An input crystal/molecule.
-            state_attr (torch.tensor): Graph attributes
-            graph_converter: Object that implements a get_graph_from_structure.
-
-        Returns:
-            output (torch.tensor): output property
-        #""
-        if graph_converter is None:
-            from graph_convertor import Icoxx2Graph
-
-            graph_converter = Icoxx2Graph(element_types=self.element_types, bond_length_cutoff=5.0)
-        g, lat, state_attr_default = graph_converter.get_graph(structure)
-        g.edata["pbc_offshift"] = torch.matmul(g.edata["pbc_offset"], lat[0])
-        g.ndata["pos"] = g.ndata["frac_coords"] @ lat[0]
-        if state_attr is None:
-            state_attr = torch.tensor(state_attr_default)
-        bond_vec, bond_dist = compute_pair_vector_and_distance(g)
-        bond_strength = g.edata["bond_strengths"]
-        g.edata["edge_attr"] = self.bond_expansion(bond_strength)
-        return self(g=g, state_attr=state_attr).detach()
-    """

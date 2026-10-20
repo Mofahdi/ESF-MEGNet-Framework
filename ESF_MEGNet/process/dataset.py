@@ -14,10 +14,7 @@ from dgl.data import DGLDataset
 from dgl.dataloading import GraphDataLoader
 from dgl.data.utils import split_dataset
 
-#import matgl
-#from matgl.graph.compute import compute_pair_vector_and_distance, create_line_graph
-
-from graph_converter import Icoxx2Graph
+from .graph_converter import Icoxx2Graph
 
 warnings.simplefilter("ignore")
 
@@ -49,7 +46,7 @@ def compute_pair_vector_and_distance(g: dgl.DGLGraph):
     return bond_vec, bond_dist
 
 
-class ModMGLDataset(DGLDataset):
+class MGLDataset(DGLDataset):
     """Create a dataset including dgl graphs."""
     def __init__(
         self,
@@ -168,26 +165,29 @@ class ModMGLDataset(DGLDataset):
             graph.edata["bond_vec"] = bond_vec
             graph.edata["bond_dist"] = bond_dist
 
-        all_chg = torch.cat([g.ndata['chg'] for g in graphs], dim=0)
-        self.chg_mean = all_chg.mean(dim=0)
-        self.chg_std = all_chg.std(dim=0, unbiased=False)  
-        del all_chg
-        all_dos = torch.cat([g.ndata['dos_centers'] for g in graphs], dim=0)
-        self.dos_mean = all_dos.mean(dim=0)
-        self.dos_std = all_dos.std(dim=0, unbiased=False)  
-        del all_dos
 
         self.graphs = graphs
-        
-        for g in self.graphs:
-            g.ndata['norm_chg'] = (g.ndata['chg'] - self.chg_mean) / self.chg_std
-            g.ndata['norm_dos_centers'] = (g.ndata['dos_centers'] - self.dos_mean) / self.dos_std
 
-            if self.include_line_graph:
-                line_graph = create_line_graph(graph, self.threebody_cutoff, directed=self.directed_line_graph)  # type: ignore
-                for name in ["bond_vec", "bond_dist", "pbc_offset"]:
-                    line_graph.ndata.pop(name)
-                line_graphs.append(line_graph)
+
+        # all_chg = torch.cat([g.ndata['chg'] for g in graphs], dim=0)
+        # self.chg_mean = all_chg.mean(dim=0)
+        # self.chg_std = all_chg.std(dim=0, unbiased=False)  
+        # del all_chg
+        # all_dos = torch.cat([g.ndata['dos_centers'] for g in graphs], dim=0)
+        # self.dos_mean = all_dos.mean(dim=0)
+        # self.dos_std = all_dos.std(dim=0, unbiased=False)  
+        # del all_dos
+
+
+        # for g in self.graphs:
+        #     g.ndata['norm_chg'] = (g.ndata['chg'] - self.chg_mean) / self.chg_std
+        #     g.ndata['norm_dos_centers'] = (g.ndata['dos_centers'] - self.dos_mean) / self.dos_std
+
+        #     if self.include_line_graph:
+        #         line_graph = create_line_graph(graph, self.threebody_cutoff, directed=self.directed_line_graph)  # type: ignore
+        #         for name in ["bond_vec", "bond_dist", "pbc_offset"]:
+        #             line_graph.ndata.pop(name)
+        #         line_graphs.append(line_graph)
 
         if self.graph_labels is not None:
             state_attrs = torch.tensor(self.graph_labels).long()
@@ -306,55 +306,3 @@ def MGLDataLoader(
         return train_loader, val_loader, test_loader
     return train_loader, val_loader
 
-
-if __name__=='__main__':
-    import pandas as pd
-    #converter = Icoxx2Graph(element_types=elem_list,bond_length_cutoff=4.5)
-    converter = Icoxx2Graph(bond_length_cutoff=5, node_feats_type='cgcnn')
-    df_ph=pd.read_csv('log_mean_300msd_lobsData.csv')
-    #print(df_ph.prop.values.tolist()); exit()
-    # convert the raw dataset into MEGNetDataset
-    ph_dataset = ModMGLDataset(
-        name='MGLDataset_ICOXX_OG',
-        structures_path=list(df_ph.struc_dir.values),
-        labels={"log_msd_mean_300": list(df_ph.log_msd_mean_300.values.tolist())},
-        #labels=list(df_ph.prop.tolist()),
-        converter=converter,
-        icohplists_path=list(df_ph.ICOHP_dir.values),
-        icobilists_path=list(df_ph.ICOBI_dir.values),
-        ids=list(df_ph.id.values),
-        #clear_processed=True,
-        save_cache=False,
-        save_dir='.'
-    )
-
-    print(ph_dataset[0:2])
-    exit()
-    train_data, val_data, test_data = split_dataset(
-    ph_dataset,
-    frac_list=[0.8, 0.1, 0.1],
-    shuffle=True,
-    random_state=42,
-    )
-    train_loader, val_loader, test_loader = MGLDataLoader(
-        train_data=train_data,
-        val_data=val_data,
-        test_data=test_data,
-        collate_fn=collate_fn_graph,
-        batch_size=32,
-        num_workers=0,
-    )
-
-    #for gr in val_loader:
-     #   g, lattice, state_attr, label=gr
-      #  print(g)
-
-    #name='MGLDataset_ICOXX_OG',
-    #structures_path=list(df_ph.struc_dir.values),
-    #labels={"last_phdos_peak": list(df_ph.prop.values)},
-    #labels=list(df_ph.prop.values),
-    #converter=converter,
-    #icoxxlists_path=list(df_ph.icoxx_lists.values),
-    #clear_processed=True,
-    #save_dir='.'
-    #save_cache: bool = True,

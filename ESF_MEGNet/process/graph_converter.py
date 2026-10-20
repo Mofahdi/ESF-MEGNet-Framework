@@ -9,19 +9,13 @@ from tqdm import trange
 from ase import Atoms, Atoms
 from ase.neighborlist import neighbor_list
 from ase.io import read
-from jarvis.core.specie import Specie
-from jarvis.core.specie import get_node_attributes
 
 from pymatgen.core import Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.io.lobster import Grosspop, Doscar, Charge
+from pymatgen.io.lobster import Doscar, Charge
 from pymatgen.electronic_structure.core import Spin
 
-from nbrs_map import icoxx_struc_fxn
-
-# checklist:
-# 1- check missing interactions are zero and skip if they are not
-# 2- 
+from .nbrs_map import icoxx_struc_fxn
 
 warnings.simplefilter("ignore")
 
@@ -107,7 +101,7 @@ class Icoxx2Graph:
                   path_to_icobilist: str | None = None,
                     path_to_doscar: str | None = None,
                     path_to_chgcar: str | None = None,
-                    asym_ind: bool = True, 
+                    asym_ind: bool = False, 
                   ) -> tuple[dgl.DGLGraph, torch.Tensor, list]:
         """Get a DGL graph from an input Structure and ICOXXLIST files.
         
@@ -163,37 +157,38 @@ class Icoxx2Graph:
             icobis=icobis,
         )
 
-        if path_to_doscar:
-            struc=Structure.from_file(path_to_structure)
-            dos_lob = Doscar(doscar=path_to_doscar, structure_file=path_to_structure)  #.completedos
-            comp_dos_lob=dos_lob.completedos
-            node_centers=[]
-            for i, site in enumerate(struc):
-                site_dos=comp_dos_lob.get_site_dos(site)  #.get_site_dos(site) #get_site_orbital_dos(site)
-                site_dosEs_Ef=[x for x in site_dos.energies if x <= site_dos.efermi]
-                site_dos_Ef_up=site_dos.densities[Spin.up][0: len(site_dosEs_Ef)] #+site_dos.densities[Spin.down][0: len(site_dosEs_Ef)]
-                site_dos_Ef_dn=site_dos.densities[Spin.down][0: len(site_dosEs_Ef)]
-                #cen_torch=torch.sum(torch.from_numpy(site_dosEs_Ef*site_dos_Ef),)/torch.sum(torch.from_numpy(site_dos_Ef))
-                cen_np=(np.average(site_dosEs_Ef, weights=site_dos_Ef_up).tolist()+np.average(site_dosEs_Ef, weights=site_dos_Ef_dn).tolist())/2
-                #cen_np_int=np.trapezoid(y=np.multiply(site_dos_Ef, site_dosEs_Ef), x=site_dosEs_Ef)/np.trapezoid(site_dos_Ef, site_dosEs_Ef)
-                node_centers.append(cen_np)
-            g.ndata['dos_centers']=torch.tensor(node_centers, dtype=default_dtype).unsqueeze(-1)
-        
         if path_to_chgcar:
             chargeobj = Charge(filename=path_to_chgcar)
             #mulliken=chargeobj.mulliken
             loewdin=chargeobj.loewdin
             g.ndata['chg']=torch.tensor(loewdin, dtype=default_dtype).unsqueeze(-1)
-        
-        if asym_ind:
-            asym_indices_icohp=[]; asym_indices_icobi=[]
-            for atom_ind in range(len(structure.numbers)):
-                site_asym_ind_icohp=calc_site_asymmetry_index(site_index=atom_ind, structure=structure, icoxx_neighbors_data=mapped_icohp_data_reverse)
-                site_asym_ind_icobi=calc_site_asymmetry_index(site_index=atom_ind, structure=structure, icoxx_neighbors_data=mapped_icobi_data_reverse)
-                asym_indices_icohp.append(site_asym_ind_icohp)
-                asym_indices_icobi.append(site_asym_ind_icobi)
-            g.ndata['asym_ind_icohp']=torch.tensor(asym_indices_icohp, dtype=default_dtype).unsqueeze(-1)
-            g.ndata['asym_ind_icobi']=torch.tensor(asym_indices_icobi, dtype=default_dtype).unsqueeze(-1)
+
+
+        # if path_to_doscar:
+        #     struc=Structure.from_file(path_to_structure)
+        #     dos_lob = Doscar(doscar=path_to_doscar, structure_file=path_to_structure)  #.completedos
+        #     comp_dos_lob=dos_lob.completedos
+        #     node_centers=[]
+        #     for i, site in enumerate(struc):
+        #         site_dos=comp_dos_lob.get_site_dos(site)  #.get_site_dos(site) #get_site_orbital_dos(site)
+        #         site_dosEs_Ef=[x for x in site_dos.energies if x <= site_dos.efermi]
+        #         site_dos_Ef_up=site_dos.densities[Spin.up][0: len(site_dosEs_Ef)] #+site_dos.densities[Spin.down][0: len(site_dosEs_Ef)]
+        #         site_dos_Ef_dn=site_dos.densities[Spin.down][0: len(site_dosEs_Ef)]
+        #         #cen_torch=torch.sum(torch.from_numpy(site_dosEs_Ef*site_dos_Ef),)/torch.sum(torch.from_numpy(site_dos_Ef))
+        #         cen_np=(np.average(site_dosEs_Ef, weights=site_dos_Ef_up).tolist()+np.average(site_dosEs_Ef, weights=site_dos_Ef_dn).tolist())/2
+        #         #cen_np_int=np.trapezoid(y=np.multiply(site_dos_Ef, site_dosEs_Ef), x=site_dosEs_Ef)/np.trapezoid(site_dos_Ef, site_dosEs_Ef)
+        #         node_centers.append(cen_np)
+        #     g.ndata['dos_centers']=torch.tensor(node_centers, dtype=default_dtype).unsqueeze(-1)
+
+        # if asym_ind:
+        #     asym_indices_icohp=[]; asym_indices_icobi=[]
+        #     for atom_ind in range(len(structure.numbers)):
+        #         site_asym_ind_icohp=calc_site_asymmetry_index(site_index=atom_ind, structure=structure, icoxx_neighbors_data=mapped_icohp_data_reverse)
+        #         site_asym_ind_icobi=calc_site_asymmetry_index(site_index=atom_ind, structure=structure, icoxx_neighbors_data=mapped_icobi_data_reverse)
+        #         asym_indices_icohp.append(site_asym_ind_icohp)
+        #         asym_indices_icobi.append(site_asym_ind_icobi)
+        #     g.ndata['asym_ind_icohp']=torch.tensor(asym_indices_icohp, dtype=default_dtype).unsqueeze(-1)
+        #     g.ndata['asym_ind_icobi']=torch.tensor(asym_indices_icobi, dtype=default_dtype).unsqueeze(-1)
         
         return g, lat, state_attr
 
@@ -237,23 +232,16 @@ class Icoxx2Graph:
             node_features = torch.nn.functional.one_hot(
                             torch.from_numpy(structure.get_atomic_numbers().copy()-1).long(), num_classes=118,
                             ).to(dtype=default_dtype)
-        elif self.node_feats_type.lower()=='orb':
+        elif self.node_feats_type.lower()=='rand_embd':
             #atom_emb=AtomEmbedding(emb_size=92, num_elements=118, sparse=False)
             atom_emb=AtomEmbedding(emb_size=118, num_elements=118, sparse=False)
             node_features = atom_emb(torch.from_numpy(structure.get_atomic_numbers().copy()-1).long()).detach()
-
-        elif self.node_feats_type.lower()=='cgcnn':
-            sps_features = []
-            for ii, s in enumerate(structure.get_chemical_symbols().copy()):
-                feat = list(get_node_attributes(s, atom_features='cgcnn'))
-                sps_features.append(feat)
-            node_features = torch.tensor(sps_features, dtype=default_dtype)
         
         else:
-            raise ValueError("""use one of the following feature types: "Z", "orb", or "cgcnn" ignoring the case 
+            raise ValueError("""use one of the following feature types: "Z" or "rand_embd" ignoring the case 
                     "Z": one hot encoding atomic number
-                    "orb": node features similar node features to orb orb
-                    "cgcnn": features from CGCNN""")
+                    "rand_embd": node features similar node features to orb
+                    """)
 
         g.ndata["node_feats"] = node_features
         positions = torch.as_tensor(structure.positions.copy(), dtype=default_dtype);
@@ -311,29 +299,3 @@ if __name__=='__main__':
             elements.update(s.composition.get_el_amt_dict().keys())
         return tuple(sorted(elements, key=lambda el: Element(el).Z))
 
-#pmg_struc=Structure.from_file('CONTCAR')
-#els=get_element_list(train_structures=[pmg_struc, Structure.from_file('CONTCAR_NaCl')]);
-#print(els)
-#node_type = (
-#            np.array([els.index(site.specie.symbol) for site in Structure.from_file('CONTCAR_NaCl')])
-#        )
-#element_to_index = {elem: idx for idx, elem in enumerate(els)}  
-#print(element_to_index, node_type)
-
-
-#CH_z=read('CONTCAR_CH').get_atomic_numbers()-1
-#one_hot_atomic = torch.nn.functional.one_hot(
- #       torch.from_numpy(CH_z), num_classes=118
-  #      )
-#print(one_hot_atomic.shape)
-
-#print(torch.from_numpy(CH_z).dtype)
-#exit()
-#atomic_number_rep = torch.from_numpy(CH_z).long()
-#print(atomic_number_rep.dtype)
-
-
-#atom_emb=AtomEmbedding(emb_size=256, num_elements=118, sparse=False)
-#atomic_embedding = atom_emb(atomic_number_rep)
-#print(atomic_embedding.dtype)
-#exit()

@@ -11,7 +11,7 @@ import dgl
 import dgl.function as fn
 from dgl import DGLGraph, broadcast_edges, softmax_edges, sum_edges
 
-from _activations import ActivationFunction
+from ._activations import ActivationFunction
 
 from collections.abc import Callable, Sequence
 #if TYPE_CHECKING:
