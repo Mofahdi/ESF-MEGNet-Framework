@@ -1,6 +1,5 @@
 runs
 test
-ESF_MEGNet_zero/
 
 MEGNet/test_idx_0.npy
 MEGNet/train_idx_0.npy
