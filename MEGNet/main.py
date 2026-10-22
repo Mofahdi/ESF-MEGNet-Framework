@@ -27,12 +27,12 @@ from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 parser = argparse.ArgumentParser(description="Train and evaluate the MEGNet model.")
 parser.add_argument(
     "--csv-filename",
-    default="log_mean_300msd_lobsData.csv",
+    #default="log_mean_300msd_lobsData.csv",
     help="Input CSV dataset filename.",
 )
 parser.add_argument(
     "--col-name",
-    default="log_msd_mean_300",
+    #default="log_msd_mean_300",
     help="CSV column containing the target values.",
 )
 parser.add_argument(
@@ -75,6 +75,10 @@ batch_size = args.batch_size
 
 converter = Icoxx2Graph(bond_length_cutoff=5, node_feats_type='Z') # 'rand_embd': 118, one hot 'Z': 118
 df=pd.read_csv(csv_filename)
+df['struc_dir']=df['mat_dir'].apply(lambda x: os.path.join(x, 'CONTCAR.gz'))
+df['ICOHP_dir']=df['mat_dir'].apply(lambda x: os.path.join(x, 'ICOHPLIST.lobster.gz'))
+df['ICOBI_dir']=df['mat_dir'].apply(lambda x: os.path.join(x, 'ICOBILIST.lobster.gz'))
+
 
 # convert the raw dataset into MEGNetDataset
 dataset = MDGLDataset(
