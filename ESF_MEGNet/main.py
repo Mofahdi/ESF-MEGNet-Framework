@@ -27,12 +27,12 @@ from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 parser = argparse.ArgumentParser(description="Train and evaluate the MEGNet model.")
 parser.add_argument(
     "--csv-filename",
-    default="log_mean_300msd_lobsData.csv",
+    #default="log_mean_300msd_lobsData.csv",
     help="Input CSV dataset filename.",
 )
 parser.add_argument(
     "--col-name",
-    default="log_msd_mean_300",
+    #default="log_msd_mean_300",
     help="CSV column containing the target values.",
 )
 parser.add_argument(
