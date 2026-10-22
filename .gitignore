@@ -42,3 +42,17 @@ ESF_MEGNet_zero/logs
 ESF_MEGNet_zero/best_megCkpts
 ESF_MEGNet_zero/train_val.jpg
 
+
+ESF_MEGNet_rand/test_idx_0.npy
+ESF_MEGNet_rand/train_idx_0.npy
+ESF_MEGNet_rand/val_idx_0.npy
+ESF_MEGNet_rand/submission_script.sh
+ESF_MEGNet_rand/log_mean_300msd_lobsData.csv
+ESF_MEGNet_rand/results.*
+ESF_MEGNet_rand/__pycache__/
+ESF_MEGNet_rand/process/__pycache__/
+ESF_MEGNet_rand/train/__pycache__/
+ESF_MEGNet_rand/logs
+ESF_MEGNet_rand/best_megCkpts
+ESF_MEGNet_rand/train_val.jpg
+
