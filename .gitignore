@@ -1,6 +1,6 @@
 runs
 test
-ESF_MEGNet_zero
+ESF_MEGNet_zero/
 
 MEGNet/test_idx_0.npy
 MEGNet/train_idx_0.npy
@@ -29,4 +29,16 @@ ESF_MEGNet/logs
 ESF_MEGNet/best_megCkpts
 ESF_MEGNet/train_val.jpg
 
+ESF_MEGNet_zero/test_idx_0.npy
+ESF_MEGNet_zero/train_idx_0.npy
+ESF_MEGNet_zero/val_idx_0.npy
+ESF_MEGNet_zero/submission_script.sh
+ESF_MEGNet_zero/log_mean_300msd_lobsData.csv
+ESF_MEGNet_zero/results.*
+ESF_MEGNet_zero/__pycache__/
+ESF_MEGNet_zero/process/__pycache__/
+ESF_MEGNet_zero/train/__pycache__/
+ESF_MEGNet_zero/logs
+ESF_MEGNet_zero/best_megCkpts
+ESF_MEGNet_zero/train_val.jpg
 
