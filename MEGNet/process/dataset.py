@@ -2,6 +2,7 @@
 from __future__ import annotations
 import os
 import json
+from esf_workflow.cache import dataset_cache_key
 import dgl
 import numpy as np
 import torch
@@ -88,7 +89,7 @@ class MDGLDataset(DGLDataset):
             labels: targets, as a dict of {name: list of values}.
             name: name of dataset.
             graph_labels: state attributes.
-            save_cache: whether to save the processed dataset. The dataset can be reloaded from save_dir
+            save_cache: enable reading and writing validated processed caches in save_dir
                 Default: True
             raw_dir : str specifying the directory that will store the downloaded data or the directory that already
                 stores the input data.
@@ -114,15 +115,25 @@ class MDGLDataset(DGLDataset):
         self.directed_line_graph = directed_line_graph
         self.graph_labels = graph_labels
         self.save_cache = save_cache
+        self._cache_key = dataset_cache_key(self) if save_cache else None
         super().__init__(name=name, raw_dir=raw_dir, save_dir=save_dir)
     
     def has_cache(self) -> bool:
-        """Check if the dgl_graph.bin exists or not."""
+        """Only reuse caches matching the current inputs and preprocessing."""
+        if not self.save_cache:
+            return False
+        try:
+            with open(os.path.join(self.save_path, "cache_metadata.json")) as handle:
+                if json.load(handle).get("key") != self._cache_key:
+                    return False
+        except (OSError, ValueError):
+            return False
         files_to_check = [
             self.filename,
             self.filename_lattice,
             self.filename_state_attr,
             self.filename_labels,
+            self.filename_ids,
         ]
         if self.include_line_graph:
             files_to_check.append(self.filename_line_graph)
@@ -187,6 +198,8 @@ class MDGLDataset(DGLDataset):
         torch.save(self.state_attr, os.path.join(self.save_path, self.filename_state_attr))
         if self.include_line_graph:
             save_graphs(os.path.join(self.save_path, self.filename_line_graph), self.line_graphs)
+        with open(os.path.join(self.save_path, "cache_metadata.json"), "w") as handle:
+            json.dump({"key": self._cache_key}, handle)
 
     def load(self):
         """Load dgl graphs from files."""

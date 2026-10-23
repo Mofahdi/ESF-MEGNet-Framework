@@ -1,5 +1,10 @@
 runs
 test
+__pycache__/
+*.py[cod]
+.venv/
+data/LOBSTER_data/
+/context/
 
 MEGNet/test_idx_0.npy
 MEGNet/train_idx_0.npy

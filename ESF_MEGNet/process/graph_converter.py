@@ -16,6 +16,7 @@ from pymatgen.io.lobster import Doscar, Charge
 from pymatgen.electronic_structure.core import Spin
 
 from .nbrs_map import icoxx_struc_fxn
+from esf_workflow.bonds import align_bond_descriptors
 
 warnings.simplefilter("ignore")
 
@@ -131,13 +132,13 @@ class Icoxx2Graph:
         icohps = []
         icobis =  []
         images = []
-        for _, src_dst_dist_img_ic in enumerate(mapped_icohp_data_reverse):
+        aligned_bonds = align_bond_descriptors(mapped_icohp_data_reverse, mapped_icobi_data_reverse)
+        for src_dst_dist_img_ic, icobi in aligned_bonds:
             src=src_dst_dist_img_ic[0][0] 
             dst=src_dst_dist_img_ic[0][1] 
 
             img = np.array(src_dst_dist_img_ic[2])
             icohp = src_dst_dist_img_ic[-1]
-            icobi = mapped_icobi_data_reverse[_][-1]
 
             src_ids.append(src)
             dst_ids.append(dst)

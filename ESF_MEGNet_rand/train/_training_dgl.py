@@ -44,11 +44,6 @@ class MatglLightningModuleMixin:
 
         return results["Total_Loss"]
 
-    def on_train_epoch_end(self) -> None:
-        """Step scheduler every epoch."""
-        sch = self.lr_schedulers()  # type: ignore[attr-defined]
-        sch.step()
-
     def validation_step(self, batch: tuple, batch_idx: int) -> torch.Tensor:
         """Validation step.
 
@@ -86,7 +81,7 @@ class MatglLightningModuleMixin:
         )
         return results
 
-    def configure_optimizers(self) -> tuple[list[torch.optim.Optimizer], list[torch.optim.lr_scheduler.LRScheduler]]:
+    def configure_optimizers(self) -> dict[str, Any]:
         """Configure optimizers."""
         if self.optimizer is None:  # type: ignore[attr-defined]
             optimizer = torch.optim.Adam(
@@ -104,11 +99,11 @@ class MatglLightningModuleMixin:
             )
         else:
             scheduler = self.scheduler  # type: ignore[attr-defined]
-        return [
-            optimizer,
-        ], [
-            scheduler,
-        ]
+        # Lightning owns scheduler stepping, exactly once per completed epoch.
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {"scheduler": scheduler, "interval": "epoch", "frequency": 1},
+        }
 
     def on_test_model_eval(self, *args: Any, **kwargs: Any) -> None:
         """
@@ -168,7 +163,7 @@ class ModelLightningModule(MatglLightningModuleMixin, pl.LightningModule):
             optimizer: optimizer for training
             scheduler: scheduler for training
             lr: learning rate for training
-            decay_steps: number of steps for decaying learning rate
+            decay_steps: cosine annealing T_max in epochs
             decay_alpha: parameter determines the minimum learning rate.
             sync_dist: whether sync logging across all GPU workers or not
             **kwargs: Passthrough to parent init.

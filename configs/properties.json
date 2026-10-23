@@ -1,0 +1,42 @@
+{
+  "material_root": "../data/LOBSTER_data",
+  "settings": {
+    "seed": 42,
+    "feature_seed": 42,
+    "split_seed": 42,
+    "n_splits": 10,
+    "max_epochs": 500,
+    "patience": 300,
+    "batch_size": 64,
+    "decay_steps": 1000,
+    "device": "cuda",
+    "models": ["MEGNet", "ESF_MEGNet", "ESF_MEGNet_zero", "ESF_MEGNet_rand"]
+  },
+  "properties": {
+    "phonon_dos_peak": {
+      "csv_filename": "../data/ph_lo_chgS_dirs.csv",
+      "col_name": "last_phdos_peak",
+      "target_scale": "linear"
+    },
+    "average_msd": {
+      "csv_filename": "../data/log_mean_300msd_lobsData.csv",
+      "col_name": "log_msd_mean_300",
+      "target_scale": "log10"
+    },
+    "bulk_modulus": {
+      "csv_filename": "../data/log_k_data.csv",
+      "col_name": "log_k_vrh",
+      "target_scale": "log10"
+    },
+    "shear_modulus": {
+      "csv_filename": "../data/log_g_data.csv",
+      "col_name": "log_g_vrh",
+      "target_scale": "log10"
+    },
+    "vickers_hardness": {
+      "csv_filename": "../data/hardness_data.csv",
+      "col_name": "HV_log",
+      "target_scale": "log10"
+    }
+  }
+}

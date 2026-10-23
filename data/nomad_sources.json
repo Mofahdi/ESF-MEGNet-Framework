@@ -1,0 +1,716 @@
+{
+  "dataset_doi": "10.17172/nomad.mc38-9gm1",
+  "dataset_id": "g4yUafn1RpeGolb-oa3DSg",
+  "api_base": "https://nomad-lab.eu/prod/v1/api/v1",
+  "upstream_url": "https://github.com/Mofahdi/MACE_Allegro_LOBSTER_Analysis",
+  "upstream_commit": "e77a3dc1e42216f6c1b4b0c2f2c9accd17fa3158",
+  "upstream_mapping_file": "nomad_entry_ids.csv",
+  "upstream_mapping_sha256": "97def027af1a109132aca88e8f82baaa3f0abf3c0a88c592d2bed6dbd55441bb",
+  "upstream_entry_count": 5978,
+  "additional_entries": [
+    {
+      "entry_id": "dXMPbdkej0bp7rCKvmILopPY2C67",
+      "upload_id": "myOAzHh6RveCVYoI-ZVF9Q",
+      "mainfile": "mp-10182/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "LazoqfDW9KXWeO00kLg1CXwNTtKT",
+      "upload_id": "TGKmmPYhSaSikCam3lBO-Q",
+      "mainfile": "mp-1023934/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "C_yP2oHy4b-fcl6h9vkAG-Te3yxD",
+      "upload_id": "OnvwPRBATzqeG7-FwleQPA",
+      "mainfile": "mp-1025874/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "1bSw6Ad-K-SkquhygAktsA3woDx2",
+      "upload_id": "myOAzHh6RveCVYoI-ZVF9Q",
+      "mainfile": "mp-10281/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "9iqml5fp1a_5WA5vkQwntiTny90q",
+      "upload_id": "IVusniEuSYOghFGtURfQcQ",
+      "mainfile": "mp-11714/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "LBsXi5Wm_0Ve5M00E2YYOZ1rd3_-",
+      "upload_id": "XRoHHbtmR-6P3leoKtRIUg",
+      "mainfile": "mp-12843/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "PEspbsG0XvUMYBwQ-NUfPoZEtFmM",
+      "upload_id": "McjLcShaTwCMsKeAFRBZmA",
+      "mainfile": "mp-149/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "7nI1KKSdhVFLDEK8lu1SYjrQy8ez",
+      "upload_id": "KPDfxFX4SI-Fbf7EZgSTsw",
+      "mainfile": "mp-1542038/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "N7eUa0Etjfuy0kO3N4polDKFopm-",
+      "upload_id": "9V1185emRximpg1DTn19dg",
+      "mainfile": "mp-1974948/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "mNQwByABm7mFmqVo9ZnsmCH_gDrH",
+      "upload_id": "HoE-g7vzQVmn7DhLV4-iuA",
+      "mainfile": "mp-2051619/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "x-GiEVEVuSn6LBULhgCEafszdVEj",
+      "upload_id": "JdKeUUh_Q6idQ-XBiK222w",
+      "mainfile": "mp-22261/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "L7DKwx_dY2KS0NUk9byn01K08elb",
+      "upload_id": "HnROTEXbR2Ox_IOujzpzJw",
+      "mainfile": "mp-22894/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "praSHtUXO7uxMhqwibjZhEs70ywE",
+      "upload_id": "C-3RViTdTXmom4UZxkwQQQ",
+      "mainfile": "mp-2356866/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "UDxzB1J8PamwHzEgh5nA0khqocjU",
+      "upload_id": "M-V4abvaR9OW4x7eMjN0MA",
+      "mainfile": "mp-2379939/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "SadrA9c8IFabTDQqyfbolEUItICe",
+      "upload_id": "M-V4abvaR9OW4x7eMjN0MA",
+      "mainfile": "mp-2382752/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "MdVCamI1W8SeNgcS5D7gI77oPkTs",
+      "upload_id": "y83Dth7sTf2SoLW8bRZ7VA",
+      "mainfile": "mp-2468774/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "Hghu88pc1PAKgExwfjKwVQhvh0zo",
+      "upload_id": "CNVYQSL2TmCHmd41cnnxpQ",
+      "mainfile": "mp-2654140/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "KvB1z8UtOWpfbd6QzuY1ozoBSSJH",
+      "upload_id": "hDbC0K5SSB2nGpCw76MWcQ",
+      "mainfile": "mp-2677258/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "LMQpxq16bnOkEaMW0dcSlOxzX9RT",
+      "upload_id": "-i0xqThUTsecdt4R1sz6qg",
+      "mainfile": "mp-27181/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "_v7cnvPwvG8QReYX_iR-5KT1Di3W",
+      "upload_id": "CNVYQSL2TmCHmd41cnnxpQ",
+      "mainfile": "mp-2719342/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "W0ITmNBk2HAbJrZHBa_KjxQUycth",
+      "upload_id": "hDbC0K5SSB2nGpCw76MWcQ",
+      "mainfile": "mp-2720358/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "xEZGRGzlJHkygT8ES0FEzrDgqXjL",
+      "upload_id": "hDbC0K5SSB2nGpCw76MWcQ",
+      "mainfile": "mp-2724101/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "oRrdG7ndKJTZEcd4q1wsQv-Per5x",
+      "upload_id": "8PXftvyyTGikN7H2wy7k3A",
+      "mainfile": "mp-28049/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "yNHaiC-3A0wFmbzKoNY0_wiomqfa",
+      "upload_id": "Lct-ofKUQXym0HZ9HqZ_qg",
+      "mainfile": "mp-2911/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "xIp85HUYC7n8PhKRgxUDfBOvfzOZ",
+      "upload_id": "HG2YqOFOTK6veYKq0DEqvw",
+      "mainfile": "mp-2913080/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "7RG8pyuWTRYDlDXp0-Xd76v6NLpL",
+      "upload_id": "L2UiwalSSg2mZnpjWLStgg",
+      "mainfile": "mp-29145/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "l6CKSNaAJRoW0zOijbDdpe0XzGgC",
+      "upload_id": "2kbxyzDVRgOMaLL1uW-BKg",
+      "mainfile": "mp-2931/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "5e6ZvuB6kScyQXC8mrkUBwV8y1uv",
+      "upload_id": "BXuSwqCgQkeq31G5gCZGDw",
+      "mainfile": "mp-36111/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "0DiY5TVYWWMfeC9QAX1vIPm55qIc",
+      "upload_id": "iuJeRhmwR-ebWmAWPznuTA",
+      "mainfile": "mp-4180/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "bkT1C_x08tMWlegn5TVRU6o8emgf",
+      "upload_id": "eDR8lv1DSimKf9rcCpRN9g",
+      "mainfile": "mp-4321/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "dtHrBJ-6LoVvSjNRV5gM0-aZv7Tf",
+      "upload_id": "eDR8lv1DSimKf9rcCpRN9g",
+      "mainfile": "mp-4429/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "a1aQZiS3TlE0HFEjpQMyOlkWKpiE",
+      "upload_id": "Hrexqux_S5W28goIs388aA",
+      "mainfile": "mp-4657/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "KV6_-c3luzlBYb143ttTucYRclV7",
+      "upload_id": "eDR8lv1DSimKf9rcCpRN9g",
+      "mainfile": "mp-4661/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "sAhwMhx3Wic2gg2pQ0mJ7fjAqvB7",
+      "upload_id": "Odm6IWtPRdeU_NPqhA-Alg",
+      "mainfile": "mp-47/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "xYmKdw2HoJTudFfsuAvqUIH0MTQ_",
+      "upload_id": "jRqX9USdQi-CYJPIgZm33Q",
+      "mainfile": "mp-487/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "uOuOEoBFn89Q3QvQknb4Gi-fc3N2",
+      "upload_id": "6ZWE5GqDQsKu46HgTYUjWA",
+      "mainfile": "mp-5158/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "klLc3qm9NINO4f1IIw3wyc_NUS5j",
+      "upload_id": "4SArkQ7FT5WAGKlGzaMNsw",
+      "mainfile": "mp-5193/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "9HH4t_7KB10H7cuieJLnl06zgN4t",
+      "upload_id": "jRqX9USdQi-CYJPIgZm33Q",
+      "mainfile": "mp-539/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "nSip9rv9RtBDu_wNfhlHlELaUnpo",
+      "upload_id": "ryFe5UdEQkq7j5XaLQUl4Q",
+      "mainfile": "mp-540645/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "Ck2xBxi5abp_T4xoE9pJCMe_pfX2",
+      "upload_id": "uPJKJxOGSvyzZd9747XMOg",
+      "mainfile": "mp-540789/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "tCi2c2oLxWXV0_AyqFin-CVGoRih",
+      "upload_id": "7uX6lzVfS5uaFoSY5Pzi9w",
+      "mainfile": "mp-542812/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "hCmVrEHD6Ybv4-IExmRiGCq9ccpF",
+      "upload_id": "fzEkCgbvRJ2OYzGn9BRa1g",
+      "mainfile": "mp-553939/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "3a2Dt25EUdKHC1k8zimDYUG_B-iU",
+      "upload_id": "yb6HebU3QY-CFdklTMMhmg",
+      "mainfile": "mp-554120/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "ajc_xt3hBs8DI5CDC-vQQDwP0Jbr",
+      "upload_id": "DD4N5qd5RGqVi-ybyrHaMQ",
+      "mainfile": "mp-554405/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "dapg6Djde4AbHC2fP_5RJEB-Dy3L",
+      "upload_id": "DD4N5qd5RGqVi-ybyrHaMQ",
+      "mainfile": "mp-555280/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "aplXpARmZ7BCB0TvfBMtZgq5v1-y",
+      "upload_id": "JTxkuKLRSeSRDZj4Kbo94g",
+      "mainfile": "mp-555763/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "3UqwagcfM7heuFmq9_-xZo8yL9q4",
+      "upload_id": "6IczwsIyTcKsLrbj-mUixA",
+      "mainfile": "mp-556742/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "l0uZQGEgV5Kk2RJRxaUfV6A7RTnJ",
+      "upload_id": "DD4N5qd5RGqVi-ybyrHaMQ",
+      "mainfile": "mp-558733/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "iZKuvg4soqm7LidRAZdc2DxuNZwh",
+      "upload_id": "STAnKtBSTeuzobRXOSKDLg",
+      "mainfile": "mp-559826/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "LiyK2w1vx43wNxMBbSg4ldBQeRks",
+      "upload_id": "f48kPa9gTO-FhV8GuDaKqw",
+      "mainfile": "mp-560588/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "GQ3rZBfvOrmUjfv6n4iDsoXyFTJq",
+      "upload_id": "J0leeo3wTxuykfNtcEMbQQ",
+      "mainfile": "mp-561258/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "ZaiKyx-R81hX8QiMbgRtrRZRB831",
+      "upload_id": "y_wTxduaQFKcuVrMAZ7RxQ",
+      "mainfile": "mp-561286/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "kjMGOxddNiscHkXNzpcnrkQSUuiV",
+      "upload_id": "y_wTxduaQFKcuVrMAZ7RxQ",
+      "mainfile": "mp-567246/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "_as4bjt8zsJIKFnz88_b-7TOriFA",
+      "upload_id": "y_wTxduaQFKcuVrMAZ7RxQ",
+      "mainfile": "mp-567296/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "OmMi4KPMHVNcAhy6ECuoSz7W4kiL",
+      "upload_id": "QiKdMb01QBCuYMyOUelxaw",
+      "mainfile": "mp-567551/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "D8m5gXdfKSJZG3igjNvzYuy3MtKc",
+      "upload_id": "QiKdMb01QBCuYMyOUelxaw",
+      "mainfile": "mp-567681/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "q-xsOJYbxV9NfG57_QS3krXw6uki",
+      "upload_id": "DD4N5qd5RGqVi-ybyrHaMQ",
+      "mainfile": "mp-568592/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "NFZE1P4kVdZW1J1wRttQ8HmTtctb",
+      "upload_id": "f48kPa9gTO-FhV8GuDaKqw",
+      "mainfile": "mp-568619/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "ohFWDWRg4YfsGACEkZmwFFswandC",
+      "upload_id": "CIiDQMI_SVSSgtYY_z-QUg",
+      "mainfile": "mp-568656/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "5SvZ_9iVqLSPexRtulWeb1P_-a1Q",
+      "upload_id": "CIiDQMI_SVSSgtYY_z-QUg",
+      "mainfile": "mp-568696/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "3cY_c7RmvFknVzT-IqY-tOjxQn4T",
+      "upload_id": "uCOUjz5uT4C2eAY6Gg1lRg",
+      "mainfile": "mp-568742/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "MnxOpg6QMHLvgAjHw6EJmBfAHUeP",
+      "upload_id": "DD4N5qd5RGqVi-ybyrHaMQ",
+      "mainfile": "mp-569567/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "c1OPgpwGKTsCSiK16A4znJGKXTL1",
+      "upload_id": "gJ-CDd-mQm-ptc-5N9dvng",
+      "mainfile": "mp-570437/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "TLW1haucfasFkTm2mP6tuoEO9i35",
+      "upload_id": "FN0I5sTmQsCRHtRG21B8lw",
+      "mainfile": "mp-570552/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "2wtc0v-FG1_pLrgrsNidgT9c7cDc",
+      "upload_id": "smoTLuQ8S5u5PwOU-qcc7w",
+      "mainfile": "mp-570641/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "e_SdOJudjCi3X84JMCEGyTQziG4U",
+      "upload_id": "smoTLuQ8S5u5PwOU-qcc7w",
+      "mainfile": "mp-570690/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "QlWu-VXu7yPidTJ7H3-husoPuymN",
+      "upload_id": "3YrEwPA0Tw24u7ZQ94Y0FQ",
+      "mainfile": "mp-570791/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "kRMWshCPhBn2nuZ2SCQilqgTaJAc",
+      "upload_id": "CGOktTiGT82yd8vK19rnqA",
+      "mainfile": "mp-570985/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "oyYaW0-4A4TXxifvXE_qlUuTSzwV",
+      "upload_id": "YMU9CRbgS8SYGY8or4KiIw",
+      "mainfile": "mp-5777/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "gbf-rBA5t9vT-k7EVyocQv8FQVgW",
+      "upload_id": "omWe8pQbT6y0Sr9N23MYHw",
+      "mainfile": "mp-582034/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "9ftaLr4dXzqX4fhFvlFRDnx9WXLn",
+      "upload_id": "GCN6jxv9S4mc2K7tuxrPYQ",
+      "mainfile": "mp-582042/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "mp6zvmXNfQZlMXYAe5xKM-c4Vetm",
+      "upload_id": "1osrtPG0TT6YW6urI2CrSQ",
+      "mainfile": "mp-611426/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "i3VGzjCpe36bjVHKZO8an_9PEUkw",
+      "upload_id": "1osrtPG0TT6YW6urI2CrSQ",
+      "mainfile": "mp-616440/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "3nGsxrArY5adMjLrPgbx-SvqnC2X",
+      "upload_id": "gAPb7mwHS1SaZ9MLh6pf1A",
+      "mainfile": "mp-626973/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "Ohzf5jMqzv-02kKLuZKZZxOwvjoQ",
+      "upload_id": "1osrtPG0TT6YW6urI2CrSQ",
+      "mainfile": "mp-628773/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "-q1jzW21ARFGEu7OybvGfnY7y-Iv",
+      "upload_id": "xN6wYse8S76ZRAWND7jc9w",
+      "mainfile": "mp-669334/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "9yXphEEqB933yCr-rrZtDARAfiEa",
+      "upload_id": "xN6wYse8S76ZRAWND7jc9w",
+      "mainfile": "mp-669340/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "PxE9rpAtnjGC41EIPTL4xLUVvyd_",
+      "upload_id": "DcvEABAiR12yNivF57pphA",
+      "mainfile": "mp-676540/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "ScnjkyBXHFOB1AAXx4aubPS6YvCg",
+      "upload_id": "DcvEABAiR12yNivF57pphA",
+      "mainfile": "mp-677103/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "5U96HQFVtU29uYKOoyzGvwTjUe1j",
+      "upload_id": "3f0ul_Q_Tmql9SXvH8SSIw",
+      "mainfile": "mp-680047/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "5vR2IZzut6vxXlTeZP46tLv1hanp",
+      "upload_id": "3f0ul_Q_Tmql9SXvH8SSIw",
+      "mainfile": "mp-680118/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "zFS169Rq-_2WjBUFJS4mjl-EgR1Q",
+      "upload_id": "3f0ul_Q_Tmql9SXvH8SSIw",
+      "mainfile": "mp-680119/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "boI0gp4y1n7sJQdUl7IEBpiFaw13",
+      "upload_id": "3f0ul_Q_Tmql9SXvH8SSIw",
+      "mainfile": "mp-680120/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "fS4GUa3t56bpcv2RABDPiizP5og5",
+      "upload_id": "urg1qnKYTnWgnpbzpmMpuw",
+      "mainfile": "mp-680152/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "vhtnjHs6i-wiUjM3yA9q5nZlDCJw",
+      "upload_id": "urg1qnKYTnWgnpbzpmMpuw",
+      "mainfile": "mp-680205/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "4wVFUjozv89OyC0tq0JHT7x81lZJ",
+      "upload_id": "2kKszZXpQD6zdsKyPShwYg",
+      "mainfile": "mp-7140/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "epNCr_j8oFmndxZH2f8wImGFGbK4",
+      "upload_id": "7MJVEJymRaa3wSbj_Paqkw",
+      "mainfile": "mp-752826/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "0zmPU4cGKYnlOLkfj12J2xiN3F-V",
+      "upload_id": "qE4GZAVtTRSG9qVt-Wq4VA",
+      "mainfile": "mp-753360/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "g_tTzoXOFAEIDHpRPiUeaHDjMz0h",
+      "upload_id": "RfLMT4UCScyNOxXvUO4p3g",
+      "mainfile": "mp-753459/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "1W-bKmbKugizAG_d8eJ4R9FycYl7",
+      "upload_id": "i0vWuqsvQtmomGENyC-ZHg",
+      "mainfile": "mp-753508/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "FOIfrVGEOkOLjqq77Dt1ostaKCPV",
+      "upload_id": "o7epjnVkTXWXF6Z7JnIJsQ",
+      "mainfile": "mp-753605/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "d1XqvjNLdACB8drDCmrDIuSwYiuj",
+      "upload_id": "RfLMT4UCScyNOxXvUO4p3g",
+      "mainfile": "mp-754752/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "NLQ4AtrN29mXh8Tc36y2xUq-MHpy",
+      "upload_id": "RfLMT4UCScyNOxXvUO4p3g",
+      "mainfile": "mp-754812/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "biXNA1EuJ8WsAKK-iFMNBalmp9WS",
+      "upload_id": "VUqOtfUrTgqQpJpBdARJOA",
+      "mainfile": "mp-755066/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "8LZFcircccZF5o1gImMAFXBoZYG-",
+      "upload_id": "VStikpMmQK2N6T_qCE6L0Q",
+      "mainfile": "mp-755759/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "zX60uXAtlCJpm9ilkbVEna4KHAnc",
+      "upload_id": "VStikpMmQK2N6T_qCE6L0Q",
+      "mainfile": "mp-755769/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "5QIP-XOL4HKDN_4hnvTpQNpTRklc",
+      "upload_id": "HMEwC9OpQgeBnumiy7vzUg",
+      "mainfile": "mp-756597/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "bYzUk7_nQgUqLTqch7eOzS4tERPK",
+      "upload_id": "867wsGEnSVyPWgp8dwyOeQ",
+      "mainfile": "mp-762225/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "20hCJ2Tu-FoAVxSuvIbDcaDzOIZW",
+      "upload_id": "mOkNJ3JBQkeP9cgcbMy2Cw",
+      "mainfile": "mp-7631/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "ZHKdjAfAykxXN6G1v28umgxyJwIU",
+      "upload_id": "-OXlS3GIR0Sk4xLBd9M3Mw",
+      "mainfile": "mp-768735/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "XUTemWiTWLk2ZOvWLnmc9O3NSvyT",
+      "upload_id": "DjGT4xv9R1C_aPT7RgNv3A",
+      "mainfile": "mp-775757/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "DxDr192lAKBU-w_ZRPDEmHDTQ-2z",
+      "upload_id": "yXYAXfqyQYuhfbLnBDLFiw",
+      "mainfile": "mp-775909/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "h1dPd24n1YgputlB7RiE21c4X2My",
+      "upload_id": "yXYAXfqyQYuhfbLnBDLFiw",
+      "mainfile": "mp-775935/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "MIl8soaQ8lSnw06z8DNNzvhyVr2C",
+      "upload_id": "mOkNJ3JBQkeP9cgcbMy2Cw",
+      "mainfile": "mp-7891/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "YAHE3DfYqV4qpxy9tXk4rL5LYa9A",
+      "upload_id": "eQiAxbNiRWqf7_IEncbaGg",
+      "mainfile": "mp-867168/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "kVFGd9B67K6wYykUu20DV3dk4w_G",
+      "upload_id": "eQiAxbNiRWqf7_IEncbaGg",
+      "mainfile": "mp-867194/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "dFaH5hk5WY8iXOLFgvAfZka7ZEZB",
+      "upload_id": "lE5PcjGqTOeZOOPegVe5nw",
+      "mainfile": "mp-867203/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "epdSSr7KvgJEm0h4cNYJamcqnexp",
+      "upload_id": "eQiAxbNiRWqf7_IEncbaGg",
+      "mainfile": "mp-867300/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "gAoc10gbxYFoEy84h4I9pcv7XnQr",
+      "upload_id": "eQiAxbNiRWqf7_IEncbaGg",
+      "mainfile": "mp-867335/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "OoUJeP3_8woPeKbwWzLzeXQABryW",
+      "upload_id": "eQiAxbNiRWqf7_IEncbaGg",
+      "mainfile": "mp-867339/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "yF4B_gqE7uQySxiejTIHiu1OwI72",
+      "upload_id": "eQiAxbNiRWqf7_IEncbaGg",
+      "mainfile": "mp-867699/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "YfYpKs_Rr-rD2U_ooeaOS614tGeq",
+      "upload_id": "eQiAxbNiRWqf7_IEncbaGg",
+      "mainfile": "mp-867730/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "pcHWB5SrAn-oh6RerpWWJ8_Na48u",
+      "upload_id": "EYv3nATPQ-q8b241l3FZaQ",
+      "mainfile": "mp-8781/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "OJBalPjhS7EbcIXGMxS1_-SGmHEP",
+      "upload_id": "5xm8RmTvTL-A8kMgWsTpNA",
+      "mainfile": "mp-8850/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "NY4AK2VqLpH4MR65VQx3JUO_GW7G",
+      "upload_id": "4ZkVZAF2SMmYtjWYMObKeQ",
+      "mainfile": "mp-9173/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "qvtevvM2NyhYHS4vYthGrcPp0b8o",
+      "upload_id": "3U1PoAOMTT-gDPaus1kscg",
+      "mainfile": "mp-984/lobsterout.gz",
+      "mainfile_key": "workflow"
+    },
+    {
+      "entry_id": "Ei0zqFlU9QTK4cFwujreTnt7Qiyb",
+      "upload_id": "H-QSH1dBSVeRmY8ZaLnI4g",
+      "mainfile": "mp-9946/lobsterout.gz",
+      "mainfile_key": "workflow"
+    }
+  ],
+  "additional_entry_selection": "Exact unsuffixed mp-ID/lobsterout.gz in the same NOMAD dataset; workflow entry matching the upstream convention. Duplicate entries verified to share upload and mainfile. No alternate basis-suffixed directories were substituted.",
+  "retrieved_utc": "2026-10-23"
+}
