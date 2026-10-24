@@ -113,6 +113,13 @@ def main():
     parser.add_argument("csv_filename")
     parser.add_argument("col_name")
     parser.add_argument("output_dir")
+    parser.add_argument(
+    "--material-root",
+    type=Path,
+    default=None,
+    metavar="PATH",
+    help="Read materials from PATH/<material-id>/",
+)
     args = parser.parse_args()
     try:
         # Retain environment overrides for the optional single-property entry point.
