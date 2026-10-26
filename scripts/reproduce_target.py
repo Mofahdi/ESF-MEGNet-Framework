@@ -8,11 +8,15 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import time
+
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from esf_workflow.settings import DEFAULT_SETTINGS, validate_settings
-from esf_workflow.splits import generate_cv_splits
+from esf_workflow.splits import file_sha256
+from esf_workflow.resume import archive_partial, fold_complete, prepare_splits, run_lock, write_json
 from scripts.summarize_cv import summarize
 
 
@@ -36,12 +40,13 @@ def save_provenance(output_dir):
             subprocess.run(git + arguments, stdout=handle, check=True)
 
 
-def run_logged(command, log_path, env):
+def run_logged(command, log_path, env, lock_fd=None):
     """Stream both child output channels to the terminal and a persistent log."""
     with log_path.open("w", encoding="utf-8") as log:
         with subprocess.Popen(
             command, cwd=ROOT, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             text=True, encoding="utf-8", errors="replace", bufsize=1,
+            pass_fds=() if lock_fd is None else (lock_fd,),
         ) as process:
             try:
                 for line in process.stdout:
@@ -64,16 +69,27 @@ def run_logged(command, log_path, env):
 
 
 def run_target(csv_filename, col_name, output_dir, settings=None, data_root=None, material_root=None):
-    """Run one target with explicit settings, using the current Python interpreter."""
+    """Reuse complete folds and restart incomplete fits with the same experiment settings."""
     settings = validate_settings({} if settings is None else settings)
     csv_path = Path(csv_filename).resolve(strict=True)
     output_dir = Path(output_dir).resolve()
-    if output_dir.exists():
-        raise FileExistsError(f"Choose a new run directory; this path already exists: {output_dir}")
-    output_dir.mkdir(parents=True)
-    metadata = generate_cv_splits(csv_path, output_dir / "splits", settings["split_seed"], settings["n_splits"])
-    print(f"Saved {metadata['n_splits']} disjoint folds for {metadata['n_samples']} rows to {output_dir / 'splits'}", flush=True)
-    save_provenance(output_dir)
+    with run_lock(output_dir) as lock_fd:
+        return _run_target(csv_path, col_name, output_dir, settings, data_root, material_root, lock_fd)
+
+
+def _run_target(csv_path, col_name, output_dir, settings, data_root, material_root, lock_fd):
+    expected = {
+        "csv_filename": str(csv_path), "csv_sha256": file_sha256(csv_path),
+        "col_name": col_name, "settings": settings,
+        "data_root": str(Path(data_root).resolve()) if data_root else str(csv_path.parent),
+        "material_root": str(Path(material_root).resolve()) if material_root else None,
+    }
+    manifest_path = output_dir / "target_run.json"
+    if manifest_path.exists() and json.loads(manifest_path.read_text()) != expected:
+        raise ValueError(f"Existing target run has different data/settings; use a new output directory: {output_dir}")
+    frame = pd.read_csv(csv_path)
+    if col_name not in frame or not {"id", "mat_dir"}.issubset(frame.columns):
+        raise ValueError("CSV must contain IDs, material paths and the requested target column")
 
     deterministic_env = {
         "PYTHONHASHSEED": str(settings["seed"]), "DGLBACKEND": "pytorch",
@@ -86,10 +102,10 @@ def run_target(csv_filename, col_name, output_dir, settings=None, data_root=None
     for flag, value in (("--data-root", data_root), ("--material-root", material_root)):
         if value is not None:
             data_args.extend([flag, str(Path(value).resolve())])
+    jobs = []
     for model in settings["models"]:
         for fold in range(settings["n_splits"]):
             fold_dir = output_dir / model / f"fold_{fold}"
-            fold_dir.mkdir(parents=True)
             command = [
                 sys.executable, "-u", str(ROOT / model / "main.py"),
                 "--csv-filename", str(csv_path), "--col-name", col_name,
@@ -100,9 +116,54 @@ def run_target(csv_filename, col_name, output_dir, settings=None, data_root=None
                 command.extend(["--" + key.replace("_", "-"), str(settings[key])])
             command.extend(data_args)
             invocation = {"argv": command, "cwd": str(ROOT), "environment": deterministic_env}
-            (fold_dir / "command.json").write_text(json.dumps(invocation, indent=2) + "\n")
-            print(f"Running {model}, fold {fold + 1}/{settings['n_splits']}...", flush=True)
-            run_logged(command, fold_dir / "training.log", env)
+            saved_command = fold_dir / "command.json"
+            # This also validates runs created before target_run.json was introduced.
+            if saved_command.exists():
+                try:
+                    previous = json.loads(saved_command.read_text())
+                except (ValueError, OSError):
+                    if not manifest_path.exists():
+                        raise ValueError(f"Cannot verify the interrupted command: {saved_command}")
+                else:
+                    if previous.get("argv", [])[1:] != command[1:]:
+                        raise ValueError(f"Saved fold command differs from the requested experiment: {saved_command}")
+            jobs.append((model, fold, fold_dir, invocation))
+    expected_dirs = {directory for _, _, directory, _ in jobs}
+    if any(directory not in expected_dirs for directory in output_dir.glob("*/fold_*")):
+        raise ValueError(f"Saved folds do not match the requested models/fold count: {output_dir}")
+    metadata = prepare_splits(csv_path, output_dir, settings)
+    complete = [(manifest_path.exists() or (directory / "command.json").is_file())
+                and fold_complete(directory, model, fold, metadata, frame, col_name, settings)
+                for model, fold, directory, _ in jobs]
+    if not manifest_path.exists():
+        write_json(manifest_path, expected)
+    if not (output_dir / "environment.txt").exists():
+        save_provenance(output_dir)
+    elif not all(complete):
+        history = output_dir / "_resumes"
+        history.mkdir(exist_ok=True)
+        attempt = history / f"attempt_{len(list(history.iterdir())) + 1}"
+        attempt.mkdir()
+        save_provenance(attempt)
+    print(f"{sum(complete)}/{len(jobs)} folds already complete; using verified shared splits.", flush=True)
+    for (model, fold, fold_dir, invocation), done in zip(jobs, complete):
+        label = f"{model}, fold {fold + 1}/{settings['n_splits']}"
+        if done:
+            print(f"Skipping completed {label}.", flush=True)
+            continue
+        if fold_dir.exists():
+            preserved = archive_partial(fold_dir, output_dir)
+            print(f"Restarting {label}; previous partial output saved to {preserved}.", flush=True)
+        fold_dir.mkdir(parents=True)
+        write_json(fold_dir / "command.json", invocation)
+        print(f"Running {label}...", flush=True)
+        started = time.monotonic()
+        run_logged(invocation["argv"], fold_dir / "training.log", env, lock_fd=lock_fd)
+        if not fold_complete(fold_dir, model, fold, metadata, frame, col_name, settings):
+            raise RuntimeError(f"Training exited without complete, valid fold results: {fold_dir}")
+        elapsed = time.monotonic() - started
+        write_json(fold_dir / "timing.json", {"elapsed_seconds": elapsed})
+        print(f"Completed {label} in {elapsed / 60:.1f} min.", flush=True)
     summary = summarize(output_dir, settings["models"])
     print(f"Completed. Fold means and standard deviations: {output_dir / 'summary.csv'}", flush=True)
     return summary
@@ -138,7 +199,7 @@ def main():
                    material_root=args.material_root or os.environ.get("MATERIAL_ROOT") or None)
     except subprocess.CalledProcessError as error:
         parser.exit(error.returncode if error.returncode > 0 else 128 - error.returncode, f"{error}\n")
-    except (OSError, ValueError) as error:
+    except (OSError, ValueError, RuntimeError) as error:
         parser.exit(2, f"{error}\n")
     except KeyboardInterrupt:
         parser.exit(130, "Interrupted; completed fold outputs have been preserved.\n")

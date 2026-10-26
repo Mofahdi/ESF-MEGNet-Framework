@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT))
 from esf_workflow.splits import file_sha256
 from esf_workflow.paths import material_directories
 from esf_workflow.settings import validate_settings
+from esf_workflow.resume import run_lock, write_json
 from scripts.reproduce_target import run_target
 
 
@@ -124,7 +125,7 @@ def combine_summaries(output_dir, plan):
 
 
 def create_run_directory(seed):
-    """Reserve a fresh default directory, preserving previous runs on every invocation."""
+    """Reserve a fresh directory when no compatible experiment exists."""
     base = ROOT / "runs" / f"all_properties_seed{seed}"
     base.parent.mkdir(parents=True, exist_ok=True)
     number = 1
@@ -137,16 +138,41 @@ def create_run_directory(seed):
             number += 1
 
 
+def matching_run_directory(plan):
+    """Find the most recent numbered run with identical effective inputs/settings."""
+    base = f"all_properties_seed{plan['settings']['seed']}"
+    matches = []
+    for directory in (ROOT / "runs").glob(base + "*"):
+        suffix = directory.name.removeprefix(base)
+        if suffix and not (suffix.startswith("_") and suffix[1:].isdigit()):
+            continue
+        try:
+            state = json.loads((directory / "run_all.json").read_text())
+        except (OSError, ValueError):
+            continue
+        if state.get("settings") == plan["settings"] and state.get("properties") == plan["properties"]:
+            matches.append((int(suffix[1:]) if suffix else 1, directory))
+    return max(matches)[1] if matches else None
+
+
 def run_all(config_path=None, output_dir=None, check_only=False):
-    """Prepare missing inputs automatically, then run the configured experiment.
+    """Resume the matching experiment, downloading missing inputs automatically.
 
     Explicit paths and check_only are available to Python callers and tests;
     the command-line entry point uses the repository defaults.
     """
+    if check_only:
+        return _run_all(config_path, output_dir, check_only=True)
+    # Serialize directory selection as well as training so simultaneous launches
+    # cannot reserve different directories for the same experiment.
+    parent = Path(output_dir).resolve().parent if output_dir is not None else ROOT / "runs"
+    with run_lock(parent):
+        return _run_all(config_path, output_dir)
+
+
+def _run_all(config_path=None, output_dir=None, check_only=False):
     config_path = Path(config_path or ROOT / "configs/properties.json").resolve()
     output_dir = Path(output_dir).resolve() if output_dir is not None else None
-    if not check_only and output_dir is not None and output_dir.exists():
-        raise FileExistsError(f"Choose a new output directory; this path exists: {output_dir}")
     # Check every configuration value and target before downloading or creating outputs.
     plan = read_plan(config_path, check_material_files=False)
     material_root = next(iter(plan["properties"].values()))["material_root"]
@@ -167,18 +193,23 @@ def run_all(config_path=None, output_dir=None, check_only=False):
         return plan
 
     if output_dir is None:
-        output_dir = create_run_directory(plan["settings"]["seed"])
-    else:
-        output_dir.mkdir(parents=True)
+        output_dir = matching_run_directory(plan) or create_run_directory(plan["settings"]["seed"])
+    state_path = output_dir / "run_all.json"
+    if state_path.exists():
+        previous = json.loads(state_path.read_text())
+        if previous.get("settings") != plan["settings"] or previous.get("properties") != plan["properties"]:
+            raise ValueError(f"Existing run has different data/settings; choose a new output directory: {output_dir}")
+        print(f"Resuming existing experiment: {output_dir}", flush=True)
+    elif output_dir.exists() and any(output_dir.iterdir()):
+        raise ValueError(f"Cannot resume an unrecognized output directory: {output_dir}")
+    output_dir.mkdir(parents=True, exist_ok=True)
     print(f"Results directory: {output_dir}", flush=True)
     state = {
         **plan, "output_dir": str(output_dir), "status": "running",
         "property_status": {name: "pending" for name in plan["properties"]},
     }
     def save_state():
-        temporary = output_dir / "run_all.json.tmp"
-        temporary.write_text(json.dumps(state, indent=2) + "\n")
-        temporary.replace(output_dir / "run_all.json")
+        write_json(state_path, state)
 
     save_state()
     current = None
@@ -223,7 +254,7 @@ def main():
     except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"{error}\n")
     except KeyboardInterrupt:
-        parser.exit(130, "Interrupted; completed property outputs have been preserved.\n")
+        parser.exit(130, "Interrupted; rerun this command to skip completed folds and restart unfinished fits.\n")
 
 
 if __name__ == "__main__":

@@ -154,7 +154,7 @@ class MGLDataset(DGLDataset):
         line_graphs = []
         state_attrs = []
         
-        for idx in trange(num_graphs):
+        for idx in trange(num_graphs, disable=None):
             path_to_structure = self.structures_path[idx]  # type: ignore
             path_to_icohplist = self.icohplists_path[idx]
             path_to_icobilist = self.icobilists_path[idx]

@@ -134,7 +134,7 @@ class AllPropertyTests(unittest.TestCase):
                     run_all(path, directory / "unused", check_only=True)
             download.assert_not_called()
 
-    def test_no_argument_entry_point_preserves_existing_outputs_on_reruns(self):
+    def test_no_argument_entry_point_reuses_matching_runs_and_preserves_other_outputs(self):
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
             path, _, _ = make_config(directory)
@@ -157,13 +157,13 @@ class AllPropertyTests(unittest.TestCase):
             download.assert_not_called()
             self.assertEqual(sentinel.read_text(), "preserve these results\n")
             self.assertEqual(collision.read_text(), "preserve this file too\n")
-            for number in (3, 4):
-                result_dir = directory / f"runs/all_properties_seed42_{number}"
-                state = json.loads((result_dir / "run_all.json").read_text())
-                self.assertEqual(state["status"], "complete")
-                self.assertEqual(state["settings"]["seed"], 42)
-                self.assertEqual(state["total_fits"], 200)
-                self.assertEqual(state["output_dir"], str(result_dir))
+            result_dir = directory / "runs/all_properties_seed42_3"
+            state = json.loads((result_dir / "run_all.json").read_text())
+            self.assertEqual(state["status"], "complete")
+            self.assertEqual(state["settings"]["seed"], 42)
+            self.assertEqual(state["total_fits"], 200)
+            self.assertEqual(state["output_dir"], str(result_dir))
+            self.assertFalse((directory / "runs/all_properties_seed42_4").exists())
 
     def test_managed_downloads_are_verified_even_when_files_exist(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -180,6 +180,24 @@ class AllPropertyTests(unittest.TestCase):
             download.assert_called_once_with(path)
             train.assert_not_called()
             self.assertFalse((directory / "unused").exists())
+
+    def test_changed_settings_create_a_separate_run_and_explicit_mismatch_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            path, config, _ = make_config(directory)
+            with patch("scripts.reproduce.ROOT", directory), \
+                    patch("scripts.reproduce.run_target"), \
+                    patch("scripts.reproduce.combine_summaries", return_value=directory / "summary.csv"), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                first = run_all(path)
+                original = (Path(first["output_dir"]) / "run_all.json").read_bytes()
+                config["settings"] = {"max_epochs": 2}
+                path.write_text(json.dumps(config))
+                second = run_all(path)
+                self.assertNotEqual(first["output_dir"], second["output_dir"])
+                self.assertEqual((Path(first["output_dir"]) / "run_all.json").read_bytes(), original)
+                with self.assertRaisesRegex(ValueError, "different data/settings"):
+                    run_all(path, first["output_dir"])
 
     def test_invalid_targets_scales_settings_and_missing_material_files(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -222,8 +240,12 @@ class AllPropertyTests(unittest.TestCase):
             self.assertEqual(state["property_status"]["average_msd"], "failed")
             self.assertEqual(state["property_status"]["bulk_modulus"], "pending")
             self.assertFalse((destination / "summary_all_properties.csv").exists())
-            with self.assertRaises(FileExistsError):
+            with patch("scripts.reproduce.run_target") as resumed, \
+                    patch("scripts.reproduce.combine_summaries", return_value=destination / "summary.csv"), \
+                    contextlib.redirect_stdout(io.StringIO()):
                 run_all(path, destination)
+            self.assertEqual(resumed.call_count, 5)
+            self.assertEqual(json.loads((destination / "run_all.json").read_text())["status"], "complete")
 
     def test_all_five_targets_through_real_training_workflow(self):
         with tempfile.TemporaryDirectory(prefix="esf five properties ") as tmp:
@@ -257,6 +279,8 @@ class AllPropertyTests(unittest.TestCase):
                 cwd=directory, env=env, capture_output=True, text=True, timeout=240,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout[-3000:] + completed.stderr[-6000:])
+            self.assertIn("Epoch 1/1 | train MAE=", completed.stdout)
+            self.assertNotIn("it/s", completed.stdout + completed.stderr)
             state = json.loads((destination / "run_all.json").read_text())
             self.assertEqual(state["status"], "complete")
             self.assertEqual(set(state["property_status"].values()), {"complete"})
@@ -282,6 +306,22 @@ class AllPropertyTests(unittest.TestCase):
                     self.assertEqual(result["seed"], 37)
                     self.assertEqual(result["feature_seed"], 11)
                     self.assertEqual(metadata["arguments"]["device"], "cpu")
+
+            # Rerun the actual entry point: only the fold with missing results is fitted.
+            finished = list(destination.glob("*/*/fold_*/results.json"))
+            preserved = {file: (file.read_bytes(), file.stat().st_mtime_ns) for file in finished[1:]}
+            finished[0].unlink()
+            resumed = subprocess.run(
+                [sys.executable, str(archive / "scripts/reproduce.py")],
+                cwd=directory, env=env, capture_output=True, text=True, timeout=90,
+            )
+            self.assertEqual(resumed.returncode, 0, resumed.stdout[-3000:] + resumed.stderr[-6000:])
+            self.assertEqual(resumed.stdout.count("Skipping completed"), 9)
+            self.assertEqual(resumed.stdout.count("Epoch 1/1"), 1)
+            self.assertTrue(finished[0].is_file())
+            for file, original in preserved.items():
+                self.assertEqual((file.read_bytes(), file.stat().st_mtime_ns), original)
+            self.assertFalse(destination.with_name(destination.name + "_2").exists())
 
 
 if __name__ == "__main__":

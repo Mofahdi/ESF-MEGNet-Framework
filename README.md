@@ -36,8 +36,11 @@ complete local materials are reused.
 Defaults and target columns are in [configs/properties.json](configs/properties.json).
 The main entry point calls [scripts/reproduce_target.py](scripts/reproduce_target.py)
 for each property. Results are saved under `runs/all_properties_seed42/`, with
-combined metrics in `summary_all_properties.csv`. Reruns create numbered output
-directories and preserve earlier results.
+combined metrics in `summary_all_properties.csv`. Rerun the same command after
+an interruption: completed folds are skipped and unfinished folds restart from
+scratch, with partial output preserved under `_incomplete/`. Matching data and
+settings reuse the latest run; changed data or settings create a numbered run.
+Training prints a concise update every ten epochs; full metrics remain in CSV files.
 
 This runs the corrected workflow; the manuscript's numerical results have not
 yet been revalidated. Phonon targets now use the DFPT dataset instead of Togo's

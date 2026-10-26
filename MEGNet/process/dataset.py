@@ -147,7 +147,7 @@ class MDGLDataset(DGLDataset):
         line_graphs = []
         state_attrs = []
         
-        for idx in trange(num_graphs):
+        for idx in trange(num_graphs, disable=None):
             path_to_structure = self.structures_path[idx]  # type: ignore
             path_to_icoxxlist = self.icoxxlists_path[idx]
             graph, lattice, state_attr = self.converter.get_graph(path_to_structure=path_to_structure, 

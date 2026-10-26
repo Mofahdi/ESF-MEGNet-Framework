@@ -8,12 +8,13 @@ import os
 from pathlib import Path
 import platform
 import subprocess
+import time
 
 import dgl
 from dgl.data.utils import Subset
 from dgl.dataloading import GraphDataLoader
 import lightning as pl
-from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
+from lightning.pytorch.callbacks import Callback, EarlyStopping, ModelCheckpoint
 from lightning.pytorch.loggers import CSVLogger
 import matplotlib
 matplotlib.use("Agg")
@@ -37,6 +38,33 @@ MODEL_CONFIG = dict(
     is_classification=False, include_state=True, dropout=0.0,
     bond_expansion=None, cutoff=5.0, gauss_width=0.5,
 )
+
+
+class EpochProgress(Callback):
+    """Plain progress lines that remain readable in terminals and captured logs."""
+
+    def on_fit_start(self, trainer, pl_module):
+        self.started = time.monotonic()
+        self.last_epoch = self.last_reported = 0
+
+    def report(self, trainer):
+        metrics = trainer.callback_metrics
+        parts = [f"Epoch {self.last_epoch}/{trainer.max_epochs}"]
+        for key, label in (("train_MAE", "train MAE"), ("val_MAE", "val MAE"), ("val_RMSE", "val RMSE")):
+            if key in metrics:
+                parts.append(f"{label}={float(metrics[key]):.5g}")
+        parts.append(f"elapsed={time.monotonic() - self.started:.1f}s")
+        print(" | ".join(parts), flush=True)
+        self.last_reported = self.last_epoch
+
+    def on_train_epoch_end(self, trainer, pl_module):
+        self.last_epoch = trainer.current_epoch + 1
+        if self.last_epoch == 1 or self.last_epoch % 10 == 0 or self.last_epoch == trainer.max_epochs:
+            self.report(trainer)
+
+    def on_fit_end(self, trainer, pl_module):
+        if self.last_epoch != self.last_reported:
+            self.report(trainer)
 
 
 def seed_everything(seed):
@@ -140,7 +168,10 @@ def run_training(variant, model_class, dataset_class, converter_class, module_cl
             chgcars_path=paths("CHARGE.lobster.gz"),
             doscars_path=[None] * len(df),  # DOS is not a model input in this implementation.
         )
+    print(f"Preparing graphs for {len(df)} materials...", flush=True)
+    preparation_started = time.monotonic()
     dataset = dataset_class(**dataset_args)
+    print(f"Graphs ready in {time.monotonic() - preparation_started:.1f}s.", flush=True)
     train_data, val_data, test_data = [Subset(dataset, values.tolist()) for values in partitions]
 
     # Random control features must not consume the initialization/training RNG stream.
@@ -186,7 +217,8 @@ def run_training(variant, model_class, dataset_class, converter_class, module_cl
     trainer = pl.Trainer(
         max_epochs=args.max_epochs, accelerator=args.device, devices=1,
         deterministic=True, benchmark=False, logger=logger,
-        callbacks=[checkpoint_callback, EarlyStopping(monitor="val_MAE", patience=args.patience, mode="min")],
+        enable_progress_bar=False, enable_model_summary=False,
+        callbacks=[checkpoint_callback, EarlyStopping(monitor="val_MAE", patience=args.patience, mode="min"), EpochProgress()],
         log_every_n_steps=1,
     )
     trainer.fit(module, train_dataloaders=train_loader, val_dataloaders=val_loader)
@@ -226,5 +258,6 @@ def run_training(variant, model_class, dataset_class, converter_class, module_cl
     for directory in (log_dir, output_dir):
         predictions_df.to_csv(directory / "results.csv", index=False)
         (directory / "results.json").write_text(json.dumps(results, indent=2, allow_nan=False) + "\n")
-    print(json.dumps(results, indent=2))
+    r2 = "undefined" if results["R2"] is None else f"{results['R2']:.5g}"
+    print(f"Test MAE={results['test_MAE']:.5g} | R2={r2} | Results: {output_dir / 'results.json'}", flush=True)
     return results
