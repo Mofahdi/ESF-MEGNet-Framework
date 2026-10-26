@@ -40,7 +40,7 @@ combined metrics in `summary_all_properties.csv`. Reruns create numbered output
 directories and preserve earlier results.
 
 This runs the corrected workflow; the manuscript's numerical results have not
-yet been revalidated. Supplied targets are unchanged, including the modulus
-outlier `mp-757233`, which needs source verification.
+yet been revalidated. Phonon targets now use the DFPT dataset instead of Togo's
+database. The modulus outlier `mp-757233` still needs source verification.
 
 Run software checks with `python -m unittest discover -s tests -v`.
