@@ -16,7 +16,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from esf_workflow.settings import DEFAULT_SETTINGS, validate_settings
 from esf_workflow.splits import file_sha256
-from esf_workflow.resume import archive_partial, fold_complete, prepare_splits, run_lock, write_json
+from esf_workflow.resume import (
+    archive_partial, command_differences, fold_complete, prepare_splits,
+    run_lock, target_differences, write_json,
+)
 from scripts.summarize_cv import summarize
 
 
@@ -85,11 +88,15 @@ def _run_target(csv_path, col_name, output_dir, settings, data_root, material_ro
         "material_root": str(Path(material_root).resolve()) if material_root else None,
     }
     manifest_path = output_dir / "target_run.json"
-    if manifest_path.exists() and json.loads(manifest_path.read_text()) != expected:
-        raise ValueError(f"Existing target run has different data/settings; use a new output directory: {output_dir}")
     frame = pd.read_csv(csv_path)
     if col_name not in frame or not {"id", "mat_dir"}.issubset(frame.columns):
         raise ValueError("CSV must contain IDs, material paths and the requested target column")
+    path_cache = {}
+    if manifest_path.exists():
+        differences = target_differences(json.loads(manifest_path.read_text()), expected, frame, path_cache)
+        if differences:
+            raise ValueError(f"Existing target run has different data/settings: {output_dir}\n  "
+                             + "\n  ".join(differences))
 
     deterministic_env = {
         "PYTHONHASHSEED": str(settings["seed"]), "DGLBACKEND": "pytorch",
@@ -125,8 +132,10 @@ def _run_target(csv_path, col_name, output_dir, settings, data_root, material_ro
                     if not manifest_path.exists():
                         raise ValueError(f"Cannot verify the interrupted command: {saved_command}")
                 else:
-                    if previous.get("argv", [])[1:] != command[1:]:
-                        raise ValueError(f"Saved fold command differs from the requested experiment: {saved_command}")
+                    differences = command_differences(previous, invocation, frame, path_cache)
+                    if differences:
+                        raise ValueError(f"Saved fold command differs from the requested experiment: {saved_command}\n  "
+                                         + "\n  ".join(differences))
             jobs.append((model, fold, fold_dir, invocation))
     expected_dirs = {directory for _, _, directory, _ in jobs}
     if any(directory not in expected_dirs for directory in output_dir.glob("*/fold_*")):

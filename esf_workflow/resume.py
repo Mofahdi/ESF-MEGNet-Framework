@@ -11,6 +11,84 @@ import numpy as np
 import pandas as pd
 
 from .splits import file_sha256, generate_cv_splits, load_indices
+from .paths import material_directories
+
+
+def _differences(saved, requested, prefix=""):
+    differences = []
+    for key in sorted(saved.keys() | requested.keys()):
+        name = f"{prefix}{key}"
+        before, after = saved.get(key), requested.get(key)
+        if key in saved and key in requested and before == after:
+            continue
+        if isinstance(before, dict) and isinstance(after, dict):
+            differences.extend(_differences(before, after, prefix=name + "."))
+        else:
+            differences.append(f"{name}: saved={before!r}, requested={after!r}")
+    return differences
+
+
+def _material_path_differences(saved, requested, frame, path_cache):
+    keys = [(str(Path(values.get("data_root") or Path(values["csv_filename"]).parent).resolve()),
+             str(Path(values["material_root"]).resolve()) if values.get("material_root") else None)
+            for values in (saved, requested)]
+    if keys[0] == keys[1]:
+        return []
+    for key in keys:
+        if key not in path_cache:
+            path_cache[key] = material_directories(frame, *key)
+    changes = [(mid, before, after) for mid, before, after in
+               zip(frame.id, path_cache[keys[0]], path_cache[keys[1]]) if before != after]
+    if not changes:
+        return []
+    mid, before, after = changes[0]
+    return [f"Material paths differ for {len(changes)} rows; {mid}: saved={str(before)!r}, requested={str(after)!r}"]
+
+
+def target_differences(saved, requested, frame, path_cache):
+    """Permit equivalent path overrides while keeping all experiment settings fixed."""
+    if not isinstance(saved, dict):
+        return ["Saved target metadata must be a JSON object"]
+    differences = _differences(
+        {key: value for key, value in saved.items() if key not in ("data_root", "material_root")},
+        {key: value for key, value in requested.items() if key not in ("data_root", "material_root")},
+    )
+    return differences or _material_path_differences(saved, requested, frame, path_cache)
+
+
+def _command_details(invocation):
+    argv = invocation.get("argv") if isinstance(invocation, dict) else None
+    if (not isinstance(argv, list) or not all(isinstance(arg, str) for arg in argv)
+            or len(argv) < 3 or argv[1] != "-u" or len(argv[3:]) % 2):
+        raise ValueError("Saved command has an unsupported argument format")
+    cwd = invocation.get("cwd")
+    if not isinstance(cwd, str) or not cwd:
+        raise ValueError("Saved command is missing its working directory")
+    values = {}
+    for flag, value in zip(argv[3::2], argv[4::2]):
+        if not flag.startswith("--") or flag in values:
+            raise ValueError(f"Saved command contains an invalid or duplicate flag: {flag}")
+        values[flag] = value
+    if "--csv-filename" not in values:
+        raise ValueError("Saved command is missing --csv-filename")
+    values["script"] = str((Path(cwd) / argv[2]).resolve())
+    for flag in ("--csv-filename", "--split-dir", "--output-dir", "--data-root", "--material-root"):
+        if flag in values:
+            values[flag] = str((Path(cwd) / values[flag]).resolve())
+    locations = {
+        "csv_filename": values["--csv-filename"],
+        "data_root": values.pop("--data-root", None),
+        "material_root": values.pop("--material-root", None),
+    }
+    return values, locations
+
+
+def command_differences(saved, requested, frame, path_cache):
+    """Compare named arguments and resolved inputs instead of raw argument lists."""
+    before, old_locations = _command_details(saved)
+    after, new_locations = _command_details(requested)
+    differences = _differences(before, after)
+    return differences or _material_path_differences(old_locations, new_locations, frame, path_cache)
 
 
 def write_json(path, value):
