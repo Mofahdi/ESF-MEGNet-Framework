@@ -1,8 +1,9 @@
-"""Check that child training failures preserve logs and stop the Python runner."""
+"""Check runner argument handling and preservation of failed training logs."""
 
 import contextlib
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -10,10 +11,31 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from scripts.reproduce_target import run_target
+from scripts.reproduce_target import main, run_target
 
 
 class PythonRunnerTests(unittest.TestCase):
+    def test_material_root_cli_precedence_and_environment_fallback(self):
+        cases = (
+            ("CLI only", "/cli/material files", None, Path("/cli/material files")),
+            ("CLI overrides environment", "/cli/material files", "/env/materials", Path("/cli/material files")),
+            ("environment fallback", None, "/env/materials", "/env/materials"),
+            ("no override", None, None, None),
+            ("empty environment", None, "", None),
+        )
+        for label, cli_root, env_root, expected in cases:
+            argv = ["reproduce_target.py", "targets.csv", "target", "results"]
+            if cli_root is not None:
+                argv.extend(["--material-root", cli_root])
+            environment = {} if env_root is None else {"MATERIAL_ROOT": env_root}
+            with self.subTest(label), patch.dict(os.environ, environment, clear=True), \
+                    patch.object(sys, "argv", argv), patch("scripts.reproduce_target.run_target") as run:
+                main()
+                run.assert_called_once_with(
+                    "targets.csv", "target", "results", settings={},
+                    data_root=None, material_root=expected,
+                )
+
     def test_child_failure_preserves_both_output_streams_and_stops_remaining_folds(self):
         with tempfile.TemporaryDirectory(prefix="esf runner ") as tmp:
             root = Path(tmp)

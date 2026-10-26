@@ -114,12 +114,12 @@ def main():
     parser.add_argument("col_name")
     parser.add_argument("output_dir")
     parser.add_argument(
-    "--material-root",
-    type=Path,
-    default=None,
-    metavar="PATH",
-    help="Read materials from PATH/<material-id>/",
-)
+        "--material-root",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="Read materials from PATH/<material-id>/ (overrides MATERIAL_ROOT)",
+    )
     args = parser.parse_args()
     try:
         # Retain environment overrides for the optional single-property entry point.
@@ -135,7 +135,7 @@ def main():
                     supplied[name] = value
         run_target(args.csv_filename, args.col_name, args.output_dir, settings=supplied,
                    data_root=os.environ.get("DATA_ROOT") or None,
-                   material_root=os.environ.get("MATERIAL_ROOT") or None)
+                   material_root=args.material_root or os.environ.get("MATERIAL_ROOT") or None)
     except subprocess.CalledProcessError as error:
         parser.exit(error.returncode if error.returncode > 0 else 128 - error.returncode, f"{error}\n")
     except (OSError, ValueError) as error:
