@@ -1,16 +1,23 @@
-This project incorporates portions of code from MatGL, specifically derived from:
+This project includes code adapted from MatGL v2.0.0:
 
-in "ESF_MEGNet/train":
-1- _activations.py: comes from https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/layers/_activations.py. with minor modifications
-2- _bond.py: comes from https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/layers/_bond.py
-3- _training_dgl.py: comes from https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/utils/_training_dgl.py. with minor modifications and line deletions.
-4- layers: comes from https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/layers/_core_dgl.py
-and https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/layers/_graph_convolution_dgl.py. We added the 'edge_update_icoxx' function in 'MEGNetGraphConv' along with the changes that comes with such the number of channels, adding a linear layer for the chemicla bonding embeddings, the icoxx embeddings into state and node updates
-5- esf_megnet.py: comes from https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/models/_megnet.py. We added transformations to charge, ICOHP, and ICOBI features along with node fusion and ICOHP and ICOBI fusion.
+- All other code in this project was written by the project authors, except as
+  otherwise noted.
+- `_activations.py`, `_bond.py`, `_training_dgl.py`, `layers.py`, and
+  `esf_megnet.py` are derived from MatGL's layers, training utilities, and
+  MEGNet model.
+- `dataset.py` is derived from MatGL's DGL graph data utilities.
+- The adapted code was modified to support charge, ICOHP, and ICOBI features,
+  including additional feature transformations and graph updates.
 
+MatGL source files:
 
-in "ESF_MEGNet/train":
-1- dataset.py: comes from https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/graph/_data_dgl.py. We modified it to process charge, ICOHP, and ICOBI.
+- https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/layers/_activations.py
+- https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/layers/_bond.py
+- https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/utils/_training_dgl.py
+- https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/layers/_core_dgl.py
+- https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/layers/_graph_convolution_dgl.py
+- https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/models/_megnet.py
+- https://github.com/materialyzeai/matgl/blob/v2.0.0/src/matgl/graph/_data_dgl.py
 
 
 Copyright (c) 2022, Materials Virtual Lab
